@@ -3,13 +3,13 @@ import { z } from 'zod';
 // `exerciseCatalog.<lang>.json` with the same shape and be swapped in here.
 import rawCatalog from '@/content/exerciseCatalog.json';
 import type { SetLog } from '@/types';
-import { ALBUM_IDS } from './constants';
+import { ALBUM_IDS, DIFFICULTIES, EQUIPMENT } from './constants';
 
 export { ALBUM_IDS };
 
 export const albumIdSchema = z.enum(ALBUM_IDS);
-export const equipmentSchema = z.enum(['dumbbell', 'band', 'bodyweight']);
-export const difficultySchema = z.enum(['beginner', 'intermediate', 'advanced']);
+export const equipmentSchema = z.enum(EQUIPMENT);
+export const difficultySchema = z.enum(DIFFICULTIES);
 export const kneeFlagSchema = z.enum(['friendly', 'caution', 'avoid']);
 
 export const catalogExerciseSchema = z.object({

@@ -10,6 +10,9 @@ export const ROUTES = {
   photos: '/photos',
   plan: '/plan',
   settings: '/settings',
+  /** First-run setup; every other route redirects here until a profile and plan exist. */
+  onboarding: '/onboarding',
+  coach: '/coach',
 } as const;
 
 /** Pseudo-album id for the user's favorited exercises (`/gallery/favorites`). */

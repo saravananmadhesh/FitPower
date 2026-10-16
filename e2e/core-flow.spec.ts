@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { seedProfile } from './fixtures/seedProfile';
 
 // Pin "today" to a lifting day (Monday = session A). On walk days (Tue/Thu/
 // Sat/Sun in the 3-day program) completing the day doesn't count toward the
@@ -16,10 +17,10 @@ test('log weight, complete a workout, and see both reflected on the dashboard', 
 
   await page.clock.setFixedTime(new Date(2026, 0, 5, 10, 0, 0));
   const today = TODAY;
+  // Seed a start date in the past, then move day 1 to today in Settings so
+  // marking today complete has a visible effect (streak, week count).
+  await seedProfile(page, { startDate: '2025-12-01' });
 
-  // A fresh install defaults the program start date to tomorrow, so "today"
-  // wouldn't count toward any program-day math yet. Start the program today
-  // so marking it complete has a visible effect (streak, week count).
   await page.goto('/settings');
   await page.locator('input[type="date"]').first().fill(today);
 
@@ -44,4 +45,42 @@ test('log weight, complete a workout, and see both reflected on the dashboard', 
   await expect(streakLabel.locator('..')).toContainText('1');
 
   expect(errors).toEqual([]);
+});
+
+test('a first-time visitor is sent to onboarding and can start the default program', async ({
+  page,
+}) => {
+  await page.goto('/progress');
+  await expect(page).toHaveURL(/\/onboarding$/);
+
+  await page.getByRole('button', { name: 'Start with the default program' }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByText('Day 1 of 180')).toBeVisible();
+});
+
+test('an install from before profiles keeps its data and skips onboarding', async ({ page }) => {
+  await page.clock.setFixedTime(new Date(2026, 0, 5, 10, 0, 0));
+  await page.addInitScript(() => {
+    const v2State = {
+      startDate: '2026-01-05',
+      startSet: true,
+      weights: [{ date: '2026-01-05', kg: 77.4 }],
+      measure: [],
+      done: {},
+      walks: {},
+      nutrition: {},
+      sets: {},
+      rpe: {},
+      favorites: [],
+    };
+    if (!localStorage.getItem('fitpower-data')) {
+      localStorage.setItem('fitpower-data', JSON.stringify({ state: v2State, version: 2 }));
+    }
+  });
+
+  await page.goto('/');
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByText('77.4 kg')).toBeVisible();
+  // The migrated legacy profile keeps the old 80 kg start: 2.6 kg lost.
+  await expect(page.getByText('2.6 kg', { exact: true })).toBeVisible();
 });

@@ -7,6 +7,7 @@ import {
 } from '@/store/useAppStore';
 import { apiRepository } from './apiRepository';
 import { localRepository } from './localRepository';
+import { legacyPlan, legacyProfile } from '@/domain/plans/legacy';
 
 function persisted(): { state: Record<string, unknown>; version: number } {
   return JSON.parse(localStorage.getItem(APP_STORE_KEY) ?? 'null');
@@ -36,7 +37,7 @@ describe('favorites (store + localRepository)', () => {
   it('persists favorites to localStorage under the bumped store version', async () => {
     await localRepository.toggleFavorite('DB_Goblet_Squat');
     expect(persisted().version).toBe(APP_STORE_VERSION);
-    expect(APP_STORE_VERSION).toBe(2);
+    expect(APP_STORE_VERSION).toBe(3);
     expect(persisted().state.favorites).toEqual(['DB_Goblet_Squat']);
   });
 
@@ -93,6 +94,95 @@ describe('persist migration v1 → v2', () => {
   });
 });
 
+describe('persist migration v2 → v3 (profile + plan)', () => {
+  const v2State = {
+    startDate: '2026-01-05',
+    startSet: true,
+    weights: [{ date: '2026-01-05', kg: 78 }],
+    measure: [],
+    done: { '2026-01-05': true },
+    walks: {},
+    nutrition: {},
+    sets: {},
+    rpe: {},
+    favorites: ['Hammer_Curls'],
+  };
+
+  it('gives an install with data the legacy profile and plan, keeping every log', () => {
+    const migrated = migrateAppStore(v2State, 2);
+    expect(migrated).toMatchObject(v2State);
+    expect(migrated.profile).toMatchObject({ heightCm: 166, startWeightKg: 80, goalWeightKg: 70 });
+    expect(migrated.plan).toMatchObject({ source: 'legacy', startDate: '2026-01-05' });
+  });
+
+  it('leaves an empty install without a profile, so it goes through onboarding', () => {
+    const migrated = migrateAppStore({ ...v2State, weights: [], done: {}, favorites: [] }, 2);
+    expect(migrated.profile).toBeUndefined();
+    expect(migrated.plan).toBeUndefined();
+  });
+
+  it('migrates a v1 snapshot straight through to v3', () => {
+    const v1State: Partial<typeof v2State> = { ...v2State };
+    delete v1State.favorites;
+    expect(migrateAppStore(v1State, 1)).toMatchObject({
+      favorites: [],
+      plan: { source: 'legacy' },
+    });
+  });
+});
+
+describe('profile and plan (store + localRepository)', () => {
+  it('start out unset', async () => {
+    expect(await localRepository.getProfile()).toBeNull();
+    expect(await localRepository.getPlan()).toBeNull();
+  });
+
+  it('saves and persists both', async () => {
+    const profile = legacyProfile('2026-01-05', '2026-10-16');
+    await localRepository.saveProfile({ ...profile, name: 'Alex' });
+    await localRepository.savePlan(legacyPlan('2026-03-02'));
+    expect((await localRepository.getProfile())?.name).toBe('Alex');
+    expect(persisted().state.profile).toMatchObject({ name: 'Alex' });
+    // The plan's start date becomes the program's day 1.
+    expect((await localRepository.getAppData()).startDate).toBe('2026-03-02');
+  });
+
+  it('rejects an invalid profile or plan without storing it', async () => {
+    const profile = legacyProfile('2026-01-05', '2026-10-16');
+    await expect(localRepository.saveProfile({ ...profile, heightCm: 5 })).rejects.toThrow();
+    const plan = legacyPlan('2026-01-05');
+    await expect(
+      localRepository.savePlan({ ...plan, weekly: { ...plan.weekly, mon: 'nope' } }),
+    ).rejects.toThrow();
+    expect(await localRepository.getProfile()).toBeNull();
+    expect(await localRepository.getPlan()).toBeNull();
+  });
+
+  it('moves the plan with the start date', async () => {
+    await localRepository.savePlan(legacyPlan('2026-01-05'));
+    await localRepository.setStartDate('2026-02-01');
+    expect((await localRepository.getPlan())?.startDate).toBe('2026-02-01');
+  });
+
+  it('round-trips through a backup, and a profile-less empty backup keeps the current ones', async () => {
+    await localRepository.saveProfile({
+      ...legacyProfile('2026-01-05', '2026-10-16'),
+      name: 'Alex',
+    });
+    await localRepository.savePlan(legacyPlan('2026-01-05'));
+    const backup: unknown = JSON.parse(JSON.stringify(await localRepository.exportBackup()));
+    await localRepository.reset();
+    expect(await localRepository.getProfile()).toBeNull();
+
+    await localRepository.importBackup(backup);
+    expect((await localRepository.getProfile())?.name).toBe('Alex');
+
+    await localRepository.importBackup({ startDate: '2026-04-06' });
+    expect((await localRepository.getProfile())?.name).toBe('Alex');
+    expect((await localRepository.getPlan())?.startDate).toBe('2026-04-06');
+  });
+});
+
 describe('backup with favorites', () => {
   it('round-trips export → reset → import', async () => {
     await localRepository.saveWeight({ date: '2026-01-05', kg: 80 });
@@ -132,5 +222,10 @@ describe('backup with favorites', () => {
 describe('apiRepository stub', () => {
   it('exposes toggleFavorite on the same interface (not implemented yet)', () => {
     expect(() => apiRepository.toggleFavorite('DB_Goblet_Squat')).toThrow(/not implemented/);
+  });
+
+  it('exposes the profile and plan methods too', () => {
+    expect(() => apiRepository.getProfile()).toThrow(/not implemented/);
+    expect(() => apiRepository.savePlan(legacyPlan('2026-01-05'))).toThrow(/not implemented/);
   });
 });

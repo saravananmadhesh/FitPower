@@ -1,24 +1,23 @@
 import { useTranslation } from 'react-i18next';
 import { addDays, formatISO, parseISO } from '@/domain/dates';
-import { typeForDate } from '@/domain/program';
-import { PROGRAM_DAYS } from '@/domain/constants';
+import { dayTypeFor, isTrainingSlot, type TrainingPlan } from '@/domain/plan';
 import { cn } from '@/utils/cn';
 
 interface CalendarGridProps {
-  startDate: string;
+  plan: TrainingPlan;
   todayKey: string;
   done: Record<string, boolean>;
   onToggle: (dateKey: string) => void;
 }
 
-export function CalendarGrid({ startDate, todayKey, done, onToggle }: CalendarGridProps) {
+export function CalendarGrid({ plan, todayKey, done, onToggle }: CalendarGridProps) {
   const { t } = useTranslation();
-  const start = parseISO(startDate);
-  const days = Array.from({ length: PROGRAM_DAYS }, (_, i) => {
+  const start = parseISO(plan.startDate);
+  const days = Array.from({ length: plan.totalDays }, (_, i) => {
     const d = addDays(start, i);
     const key = formatISO(d);
-    const type = typeForDate(d);
-    const isRest = type === 'R';
+    const type = dayTypeFor(plan, d);
+    const isRest = !isTrainingSlot(type);
     const isToday = key === todayKey;
     const isPast = key < todayKey;
     const isDone = Boolean(done[key]);
@@ -31,7 +30,7 @@ export function CalendarGrid({ startDate, todayKey, done, onToggle }: CalendarGr
     <div
       className="grid grid-cols-5 gap-1.5 sm:grid-cols-8 lg:grid-cols-10"
       role="grid"
-      aria-label={t('schedule.gridLabel')}
+      aria-label={t('schedule.gridLabel', { total: plan.totalDays })}
     >
       {days.map((day) => {
         const statusKey = day.isRest

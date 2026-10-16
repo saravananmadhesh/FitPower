@@ -9,21 +9,19 @@ import { WeightLogForm } from '@/components/progress/WeightLogForm';
 import { WeightHistoryTable } from '@/components/progress/WeightHistoryTable';
 import { MeasurementForm } from '@/components/progress/MeasurementForm';
 import { MeasurementHistoryTable } from '@/components/progress/MeasurementHistoryTable';
-import { useAppDataQuery } from '@/queries/useAppDataQuery';
+import { isSetUp, useAppDataQuery, type ReadyAppData } from '@/queries/useAppDataQuery';
 import {
   useDeleteMeasurementMutation,
   useDeleteWeightMutation,
   useSaveMeasurementMutation,
   useSaveWeightMutation,
 } from '@/queries/useAppDataMutations';
-import { GOAL_WEIGHT_KG } from '@/domain/constants';
 import type { MeasurementFormValues, WeightFormValues } from '@/domain/formSchemas';
-import type { AppData } from '@/types';
 
 export default function Progress() {
   const { data, isLoading, isError, refetch } = useAppDataQuery();
 
-  if (isLoading || !data) {
+  if (isLoading || !isSetUp(data)) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-14 w-full" />
@@ -39,7 +37,7 @@ export default function Progress() {
   return <ProgressContent data={data} />;
 }
 
-function ProgressContent({ data }: { data: AppData }) {
+function ProgressContent({ data }: { data: ReadyAppData }) {
   const { t } = useTranslation();
   const saveWeight = useSaveWeightMutation();
   const deleteWeight = useDeleteWeightMutation();
@@ -75,7 +73,7 @@ function ProgressContent({ data }: { data: AppData }) {
 
       <Card>
         <h3 className="mb-4 text-h3 text-text">{t('progress.weight.trendTitle')}</h3>
-        <WeightTrendChart weights={data.weights} goalKg={GOAL_WEIGHT_KG} />
+        <WeightTrendChart weights={data.weights} goalKg={data.profile.goalWeightKg} />
       </Card>
 
       <Card>

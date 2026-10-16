@@ -1,7 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { AppData, DayNutrition, Measurement, Rpe, SetLog, WeightEntry } from '@/types';
+import type {
+  AppData,
+  DayNutrition,
+  Measurement,
+  Rpe,
+  SetLog,
+  TrainingPlan,
+  UserProfile,
+  WeightEntry,
+} from '@/types';
 import { todayISO } from '@/domain/dates';
+import { hasUserData } from '@/domain/schema';
+import { legacyPlan, legacyProfile } from '@/domain/plans/legacy';
 
 function initialAppData(): AppData {
   return {
@@ -19,6 +30,8 @@ function initialAppData(): AppData {
     favorites: [],
     lastBackup: undefined,
     backupSnoozeUntil: undefined,
+    profile: undefined,
+    plan: undefined,
   };
 }
 
@@ -32,6 +45,8 @@ function byDateAsc<T extends { date: string }>(a: T, b: T): number {
 
 interface AppDataState extends AppData {
   setStartDate: (date: string) => void;
+  saveProfile: (profile: UserProfile) => void;
+  savePlan: (plan: TrainingPlan) => void;
   saveWeight: (entry: WeightEntry) => void;
   deleteWeight: (date: string) => void;
   saveMeasurement: (entry: Measurement) => void;
@@ -53,8 +68,11 @@ interface AppDataState extends AppData {
 
 export const APP_STORE_KEY = 'fitpower-data';
 
-/** v1 → v2: added `favorites` (Workout Gallery). */
-export const APP_STORE_VERSION = 2;
+/**
+ * v1 → v2: added `favorites` (Workout Gallery).
+ * v2 → v3: added `profile` and `plan`; installs with data get the legacy ones.
+ */
+export const APP_STORE_VERSION = 3;
 
 /**
  * Upgrades a persisted snapshot from an older `version` to the current shape.
@@ -64,6 +82,10 @@ export const APP_STORE_VERSION = 2;
 export function migrateAppStore(persisted: unknown, version: number): AppData {
   const state: AppData = { ...initialAppData(), ...(persisted as Partial<AppData> | null) };
   if (version < 2 && !Array.isArray(state.favorites)) state.favorites = [];
+  if (version < 3 && !state.profile && !state.plan && hasUserData(state)) {
+    state.profile = legacyProfile(state.startDate, todayISO());
+    state.plan = legacyPlan(state.startDate);
+  }
   return state;
 }
 
@@ -72,7 +94,17 @@ export const useAppStore = create<AppDataState>()(
     (set) => ({
       ...initialAppData(),
 
-      setStartDate: (date) => set({ startDate: date, startSet: true }),
+      setStartDate: (date) =>
+        set((s) => ({
+          startDate: date,
+          startSet: true,
+          plan: s.plan ? { ...s.plan, startDate: date } : s.plan,
+        })),
+
+      saveProfile: (profile) => set({ profile }),
+
+      // The plan's start date is the program's day 1.
+      savePlan: (plan) => set({ plan, startDate: plan.startDate, startSet: true }),
 
       saveWeight: (entry) =>
         set((s) => ({
@@ -145,7 +177,16 @@ export const useAppStore = create<AppDataState>()(
 
       setBackupSnooze: (date) => set({ backupSnoozeUntil: date }),
 
-      importAppData: (data) => set({ ...data }),
+      // A backup without a profile/plan (e.g. an empty one) keeps the current ones.
+      importAppData: (data) =>
+        set((s) => {
+          const plan = data.plan ?? s.plan;
+          return {
+            ...data,
+            profile: data.profile ?? s.profile,
+            plan: plan ? { ...plan, startDate: data.startDate } : plan,
+          };
+        }),
 
       reset: () => set({ ...initialAppData() }),
     }),
@@ -172,5 +213,7 @@ export function selectAppData(state: AppDataState): AppData {
     favorites: state.favorites,
     lastBackup: state.lastBackup,
     backupSnoozeUntil: state.backupSnoozeUntil,
+    profile: state.profile,
+    plan: state.plan,
   };
 }

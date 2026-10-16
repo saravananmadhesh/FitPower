@@ -1,3 +1,8 @@
+import type { UserProfile } from '@/domain/profile';
+import type { TrainingPlan } from '@/domain/plan';
+
+export type { UserProfile, TrainingPlan };
+
 export interface WeightEntry {
   date: string; // YYYY-MM-DD
   kg: number;
@@ -38,6 +43,10 @@ export interface AppData {
   favorites: string[];
   lastBackup?: string;
   backupSnoozeUntil?: string;
+  /** Who the app is for. Absent until onboarding (or the v3 migration) creates it. */
+  profile?: UserProfile;
+  /** The active training plan. `plan.startDate` is kept equal to `startDate`. */
+  plan?: TrainingPlan;
 }
 
 /** Progress photos live in IndexedDB, not in AppData. */

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { appDataSchema, normalizeBackup } from './schema';
+import { legacyPlan, legacyProfile } from './plans/legacy';
 import type { AppData } from '@/types';
 
 const fullAppData: AppData = {
@@ -26,9 +27,43 @@ describe('appDataSchema', () => {
   });
 });
 
+const TODAY = '2026-10-16';
+const withProfile: AppData = {
+  ...fullAppData,
+  profile: { ...legacyProfile('2026-01-05', TODAY, 'now'), name: 'Alex', heightCm: 175 },
+  plan: legacyPlan('2026-01-05', 'now'),
+};
+
 describe('normalizeBackup (CLAUDE.md "Migration from v1": map 1:1, backfill missing keys)', () => {
-  it('round-trips a full v2 backup unchanged', () => {
-    expect(normalizeBackup(fullAppData)).toEqual(fullAppData);
+  it('round-trips a full v3 backup (with profile and plan) unchanged', () => {
+    expect(normalizeBackup(withProfile, TODAY)).toEqual(withProfile);
+  });
+
+  it('gives a v2 backup with logs the legacy profile and plan, keeping every log', () => {
+    const result = normalizeBackup(fullAppData, TODAY);
+    expect(result).toMatchObject(fullAppData);
+    expect(result.profile).toMatchObject({ heightCm: 166, startWeightKg: 80, goalWeightKg: 70 });
+    expect(result.plan).toMatchObject({
+      source: 'legacy',
+      startDate: '2026-01-05',
+      totalDays: 180,
+    });
+  });
+
+  it('leaves profile and plan unset for a backup with no logs', () => {
+    const result = normalizeBackup({ startDate: '2026-01-05' }, TODAY);
+    expect(result.profile).toBeUndefined();
+    expect(result.plan).toBeUndefined();
+  });
+
+  it('keeps the plan start date equal to the backup start date', () => {
+    const result = normalizeBackup({ ...withProfile, startDate: '2026-02-02' }, TODAY);
+    expect(result.plan?.startDate).toBe('2026-02-02');
+  });
+
+  it('rejects a backup whose plan is invalid', () => {
+    const plan = { ...withProfile.plan, weekly: { ...withProfile.plan!.weekly, mon: 'Z' } };
+    expect(() => normalizeBackup({ ...withProfile, plan }, TODAY)).toThrow();
   });
 
   it('backfills missing collections from a sparse v1-shaped export', () => {
@@ -39,7 +74,9 @@ describe('normalizeBackup (CLAUDE.md "Migration from v1": map 1:1, backfill miss
       done: { '2026-01-05': true },
       // measure, walks, nutrition, sets, rpe all absent, as an early v1 export might be
     };
-    expect(normalizeBackup(v1Export)).toEqual({
+    expect(normalizeBackup(v1Export, TODAY)).toEqual({
+      profile: legacyProfile('2026-01-05', TODAY, expect.any(String)),
+      plan: legacyPlan('2026-01-05', expect.any(String)),
       startDate: '2026-01-05',
       startSet: true,
       weights: [{ date: '2026-01-05', kg: 80 }],

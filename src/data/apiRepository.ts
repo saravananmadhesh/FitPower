@@ -13,6 +13,10 @@ function notImplemented(method: string): never {
 export const apiRepository: LogRepository = {
   getAppData: () => notImplemented('getAppData'),
   setStartDate: () => notImplemented('setStartDate'),
+  getProfile: () => notImplemented('getProfile'),
+  saveProfile: () => notImplemented('saveProfile'),
+  getPlan: () => notImplemented('getPlan'),
+  savePlan: () => notImplemented('savePlan'),
   saveWeight: () => notImplemented('saveWeight'),
   deleteWeight: () => notImplemented('deleteWeight'),
   saveMeasurement: () => notImplemented('saveMeasurement'),

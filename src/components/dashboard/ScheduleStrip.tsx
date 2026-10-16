@@ -1,16 +1,16 @@
 import { useTranslation } from 'react-i18next';
 import { addDays, formatISO } from '@/domain/dates';
-import { typeForDate } from '@/domain/program';
+import { dayTypeFor, isTrainingSlot, type TrainingPlan } from '@/domain/plan';
 import { cn } from '@/utils/cn';
 
 interface ScheduleStripProps {
   today: Date;
   todayKey: string;
-  startDate: string;
+  plan: TrainingPlan;
   done: Record<string, boolean>;
 }
 
-export function ScheduleStrip({ today, todayKey, startDate, done }: ScheduleStripProps) {
+export function ScheduleStrip({ today, todayKey, plan, done }: ScheduleStripProps) {
   const { t } = useTranslation();
   const start = addDays(today, -3);
   const days = Array.from({ length: 7 }, (_, i) => addDays(start, i));
@@ -23,10 +23,10 @@ export function ScheduleStrip({ today, todayKey, startDate, done }: ScheduleStri
     >
       {days.map((d) => {
         const key = formatISO(d);
-        const type = typeForDate(d);
-        const isRest = type === 'R';
+        const type = dayTypeFor(plan, d);
+        const isRest = !isTrainingSlot(type);
         const isToday = key === todayKey;
-        const isBeforeStart = key < startDate;
+        const isBeforeStart = key < plan.startDate;
         const isPast = key < todayKey;
         const isDone = Boolean(done[key]);
         const isMissed = isPast && !isRest && !isDone && !isBeforeStart;

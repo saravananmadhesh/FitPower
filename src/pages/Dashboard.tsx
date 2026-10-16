@@ -13,17 +13,16 @@ import { StreakWidget } from '@/components/dashboard/StreakWidget';
 import { WeightTrendChart } from '@/components/charts/WeightTrendChart';
 import { RingStat } from '@/components/charts/RingStat';
 import { ActivityChart } from '@/components/charts/ActivityChart';
-import { useAppDataQuery } from '@/queries/useAppDataQuery';
+import { isSetUp, useAppDataQuery } from '@/queries/useAppDataQuery';
 import {
   useRecordBackupMutation,
   useSnoozeBackupMutation,
   useToggleWalkMutation,
 } from '@/queries/useAppDataMutations';
-import { currentWeight, targets } from '@/domain/nutrition';
+import { currentWeight, targetsForProfile } from '@/domain/nutrition';
 import { backupDue, missedCount, streakCount, weekStats } from '@/domain/metrics';
 import { addDays, dayNumber, formatISO, todayISO } from '@/domain/dates';
-import { PHASES, phaseForDay, typeForDate } from '@/domain/program';
-import { GOAL_WEIGHT_KG, HEIGHT_CM, PROGRAM_DAYS, START_WEIGHT_KG } from '@/domain/constants';
+import { phaseFor, sessionFor } from '@/domain/plan';
 import { downloadJson } from '@/utils/downloadJson';
 
 export default function Dashboard() {
@@ -33,7 +32,7 @@ export default function Dashboard() {
   const recordBackup = useRecordBackupMutation();
   const snoozeBackup = useSnoozeBackupMutation();
 
-  if (isLoading || !data) {
+  if (isLoading || !isSetUp(data)) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-14 w-full" />
@@ -53,20 +52,21 @@ export default function Dashboard() {
 
   const today = new Date();
   const todayKey = todayISO();
-  const weight = currentWeight(data.weights, START_WEIGHT_KG);
-  const nutritionTargets = targets(weight, HEIGHT_CM);
-  const streak = streakCount(data.startDate, data.done, todayKey, PROGRAM_DAYS);
-  const week = weekStats(todayKey, data.done);
-  const missed = missedCount(data.startDate, todayKey, data.done, PROGRAM_DAYS);
+  const { profile, plan } = data;
+  const startWeight = profile.startWeightKg;
+  const weight = currentWeight(data.weights, startWeight);
+  const nutritionTargets = targetsForProfile(profile, weight, todayKey);
+  const streak = streakCount(plan, data.done, todayKey);
+  const week = weekStats(plan, todayKey, data.done);
+  const missed = missedCount(plan, todayKey, data.done);
   const rawDay = dayNumber(data.startDate, todayKey);
-  const displayDay = Math.max(0, Math.min(PROGRAM_DAYS, rawDay));
-  const clampedDay = Math.max(1, Math.min(PROGRAM_DAYS, rawDay));
-  const phase = PHASES[phaseForDay(clampedDay, PROGRAM_DAYS) - 1];
-  const dayType = typeForDate(today);
+  const displayDay = Math.max(0, Math.min(plan.totalDays, rawDay));
+  const phase = phaseFor(plan, rawDay);
+  const session = sessionFor(plan, today);
   const nutritionToday = data.nutrition[todayKey] ?? { kcal: 0, pro: 0, water: 0, steps: 0 };
   const hasAnyData = data.weights.length > 0 || Object.keys(data.done).length > 0;
   const isBackupDue = backupDue(todayKey, data.lastBackup, data.backupSnoozeUntil, hasAnyData);
-  const isTodayTrainingDay = dayType !== 'R' && !data.done[todayKey];
+  const isTodayTrainingDay = session !== null && !data.done[todayKey];
 
   const activityData = Array.from({ length: 7 }, (_, i) => {
     const d = addDays(today, i - 6);
@@ -93,7 +93,7 @@ export default function Dashboard() {
 
       <PageHeader
         title={t('nav.dashboard')}
-        description={t('dashboard.subtitle', { day: displayDay, total: PROGRAM_DAYS })}
+        description={t('dashboard.subtitle', { day: displayDay, total: plan.totalDays })}
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -102,15 +102,14 @@ export default function Dashboard() {
           label={t('dashboard.stats.currentWeight')}
           value={`${weight.toFixed(1)} kg`}
           delta={{
-            label: `${(weight - START_WEIGHT_KG).toFixed(1)} kg`,
-            direction:
-              weight < START_WEIGHT_KG ? 'down' : weight > START_WEIGHT_KG ? 'up' : 'neutral',
+            label: `${(weight - startWeight).toFixed(1)} kg`,
+            direction: weight < startWeight ? 'down' : weight > startWeight ? 'up' : 'neutral',
           }}
         />
         <StatCard
           icon={TrendingDown}
           label={t('dashboard.stats.kgLost')}
-          value={`${Math.max(0, START_WEIGHT_KG - weight).toFixed(1)} kg`}
+          value={`${Math.max(0, startWeight - weight).toFixed(1)} kg`}
         />
         <StatCard
           icon={Flame}
@@ -128,7 +127,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <h3 className="mb-4 text-h3 text-text">{t('dashboard.weightChart.title')}</h3>
-          <WeightTrendChart weights={data.weights} goalKg={GOAL_WEIGHT_KG} />
+          <WeightTrendChart weights={data.weights} goalKg={profile.goalWeightKg} />
         </Card>
         <Card>
           <h3 className="mb-4 text-h3 text-text">{t('dashboard.rings.title')}</h3>
@@ -159,7 +158,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <TodayWorkoutCard
-            dayType={dayType}
+            session={session}
             phase={phase}
             isDone={Boolean(data.done[todayKey])}
             isWalked={Boolean(data.walks[todayKey])}
@@ -172,12 +171,7 @@ export default function Dashboard() {
           />
           <Card>
             <h3 className="mb-3 text-h3 text-text">{t('dashboard.scheduleStrip.title')}</h3>
-            <ScheduleStrip
-              today={today}
-              todayKey={todayKey}
-              startDate={data.startDate}
-              done={data.done}
-            />
+            <ScheduleStrip today={today} todayKey={todayKey} plan={plan} done={data.done} />
           </Card>
         </div>
         <div className="space-y-4">

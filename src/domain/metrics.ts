@@ -1,6 +1,5 @@
 import { addDays, daysBetween, formatISO, parseISO } from './dates';
-import { typeForDate } from './program';
-import { PROGRAM_DAYS } from './constants';
+import { isTrainingDay, type TrainingPlan } from './plan';
 import type { SetLog, WeightEntry } from '@/types';
 
 /**
@@ -8,18 +7,17 @@ import type { SetLog, WeightEntry } from '@/types';
  * Rest days don't count either way; today not-yet-done doesn't break it.
  */
 export function streakCount(
-  startDate: string,
+  plan: TrainingPlan,
   done: Record<string, boolean>,
   today: string,
-  totalDays: number = PROGRAM_DAYS,
 ): number {
-  const start = parseISO(startDate);
+  const start = parseISO(plan.startDate);
   const todayDate = parseISO(today);
   let streak = 0;
-  for (let i = totalDays - 1; i >= 0; i--) {
+  for (let i = plan.totalDays - 1; i >= 0; i--) {
     const d = addDays(start, i);
     if (d > todayDate) continue;
-    if (typeForDate(d) === 'R') continue;
+    if (!isTrainingDay(plan, d)) continue;
     const key = formatISO(d);
     if (key === today && !done[key]) continue;
     if (done[key]) streak++;
@@ -34,7 +32,11 @@ export interface WeekStats {
 }
 
 /** Mon-Sun completion for the week containing `today`. */
-export function weekStats(today: string, done: Record<string, boolean>): WeekStats {
+export function weekStats(
+  plan: TrainingPlan,
+  today: string,
+  done: Record<string, boolean>,
+): WeekStats {
   const now = parseISO(today);
   const offset = (now.getDay() + 6) % 7; // days since Monday
   const monday = addDays(now, -offset);
@@ -42,7 +44,7 @@ export function weekStats(today: string, done: Record<string, boolean>): WeekSta
   let total = 0;
   for (let i = 0; i < 7; i++) {
     const d = addDays(monday, i);
-    if (typeForDate(d) === 'R') continue;
+    if (!isTrainingDay(plan, d)) continue;
     total++;
     if (done[formatISO(d)]) doneCount++;
   }
@@ -51,18 +53,17 @@ export function weekStats(today: string, done: Record<string, boolean>): WeekSta
 
 /** Count of non-rest program days strictly before today that weren't completed. */
 export function missedCount(
-  startDate: string,
+  plan: TrainingPlan,
   today: string,
   done: Record<string, boolean>,
-  totalDays: number = PROGRAM_DAYS,
 ): number {
-  const start = parseISO(startDate);
+  const start = parseISO(plan.startDate);
   let missed = 0;
-  for (let i = 0; i < totalDays; i++) {
+  for (let i = 0; i < plan.totalDays; i++) {
     const d = addDays(start, i);
     const key = formatISO(d);
     if (key >= today) break;
-    if (typeForDate(d) !== 'R' && !done[key]) missed++;
+    if (isTrainingDay(plan, d) && !done[key]) missed++;
   }
   return missed;
 }

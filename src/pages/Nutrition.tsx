@@ -9,21 +9,19 @@ import { RingStat } from '@/components/charts/RingStat';
 import { ActivityChart } from '@/components/charts/ActivityChart';
 import { QuickAddForm } from '@/components/nutrition/QuickAddForm';
 import { StepsForm } from '@/components/nutrition/StepsForm';
-import { useAppDataQuery } from '@/queries/useAppDataQuery';
+import { isSetUp, useAppDataQuery, type ReadyAppData } from '@/queries/useAppDataQuery';
 import {
   useAddNutritionMutation,
   useResetNutritionDayMutation,
   useSetStepsMutation,
 } from '@/queries/useAppDataMutations';
-import { currentWeight, targets } from '@/domain/nutrition';
+import { currentWeight, targetsForProfile } from '@/domain/nutrition';
 import { addDays, formatISO, todayISO } from '@/domain/dates';
-import { HEIGHT_CM, START_WEIGHT_KG } from '@/domain/constants';
-import type { AppData } from '@/types';
 
 export default function Nutrition() {
   const { data, isLoading, isError, refetch } = useAppDataQuery();
 
-  if (isLoading || !data) {
+  if (isLoading || !isSetUp(data)) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-14 w-full" />
@@ -38,7 +36,7 @@ export default function Nutrition() {
   return <NutritionContent data={data} />;
 }
 
-function NutritionContent({ data }: { data: AppData }) {
+function NutritionContent({ data }: { data: ReadyAppData }) {
   const { t } = useTranslation();
   const addNutrition = useAddNutritionMutation();
   const setSteps = useSetStepsMutation();
@@ -47,8 +45,8 @@ function NutritionContent({ data }: { data: AppData }) {
   const todayKey = todayISO();
   const today = new Date();
   const nutritionToday = data.nutrition[todayKey] ?? { kcal: 0, pro: 0, water: 0, steps: 0 };
-  const weight = currentWeight(data.weights, START_WEIGHT_KG);
-  const nutritionTargets = targets(weight, HEIGHT_CM);
+  const weight = currentWeight(data.weights, data.profile.startWeightKg);
+  const nutritionTargets = targetsForProfile(data.profile, weight, todayKey);
 
   const activityData = Array.from({ length: 7 }, (_, i) => {
     const d = addDays(today, i - 6);

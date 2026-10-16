@@ -5,6 +5,8 @@ import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@/i18n';
 import { localRepository } from '@/data/localRepository';
+import { legacyPlan, legacyProfile } from '@/domain/plans/legacy';
+import { todayISO } from '@/domain/dates';
 import { ExerciseRow } from '@/components/workout/ExerciseRow';
 import Workout from './Workout';
 
@@ -23,6 +25,8 @@ const rowFor = (name: string): HTMLElement => screen.getByText(name).closest('li
 
 beforeEach(async () => {
   await localRepository.reset();
+  await localRepository.saveProfile(legacyProfile(todayISO(), todayISO()));
+  await localRepository.savePlan(legacyPlan(todayISO()));
 });
 
 describe('Workout page ↔ gallery catalog', () => {

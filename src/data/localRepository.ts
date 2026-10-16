@@ -1,5 +1,7 @@
 import { selectAppData, useAppStore } from '@/store/useAppStore';
 import { normalizeBackup } from '@/domain/schema';
+import { userProfileSchema } from '@/domain/profile';
+import { trainingPlanSchema } from '@/domain/plan';
 import type { LogRepository } from './Repository';
 
 export const localRepository: LogRepository = {
@@ -9,6 +11,26 @@ export const localRepository: LogRepository = {
 
   async setStartDate(date) {
     useAppStore.getState().setStartDate(date);
+  },
+
+  async getProfile() {
+    return useAppStore.getState().profile ?? null;
+  },
+
+  async saveProfile(profile) {
+    const valid = userProfileSchema.parse(profile);
+    useAppStore.getState().saveProfile(valid);
+    return valid;
+  },
+
+  async getPlan() {
+    return useAppStore.getState().plan ?? null;
+  },
+
+  async savePlan(plan) {
+    const valid = trainingPlanSchema.parse(plan);
+    useAppStore.getState().savePlan(valid);
+    return valid;
   },
 
   async saveWeight(entry) {
