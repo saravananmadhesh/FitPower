@@ -37,13 +37,14 @@ Dark (default):
 
 Light:
 
-| Semantic                                                                                         | Value |
-| ------------------------------------------------------------------------------------------------ | ----- |
-| `bg` `#F4F6FA` · `surface` `#FFFFFF` · `card` `#FFFFFF` · `card-2` `#F1F4F9`                     |
-| `border` `#E5E9F0` · `border-strong` `#D3DAE6`                                                   |
-| `text` `#12141A` · `text-muted` `#5B6472` · `text-subtle` `#8A93A3`                              |
-| `accent` `#6FA80F` (AA on white) · `accent-ink` `#FFFFFF` · `accent-soft` `rgba(111,168,15,.12)` |
-| roles: same hues, verify AA on white                                                             |
+| Semantic                                                                                                                                | Value |
+| --------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| `bg` `#F4F6FA` · `surface` `#FFFFFF` · `card` `#FFFFFF` · `card-2` `#F1F4F9`                                                            |
+| `border` `#E5E9F0` · `border-strong` `#D3DAE6`                                                                                          |
+| `text` `#12141A` · `text-muted` `#5B6472` · `text-subtle` `#8A93A3`                                                                     |
+| `accent` `#3F6212` · `accent-ink` `#FFFFFF` · `accent-soft` `rgba(63,98,18,.12)`                                                        |
+| `info` `#2F5FD0` · `teal` `#0F766E` · `success` `#047857` · `warning` `#92400E` · `danger` `#C81E1E`                                    |
+| darker shades of the dark-theme hues: each reaches 4.5:1 as text on white, `card-2` and its own `-soft` tint, and with white text on it |
 
 ### Spacing — 8px base
 
