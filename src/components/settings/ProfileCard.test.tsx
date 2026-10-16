@@ -57,6 +57,22 @@ describe('ProfileCard', () => {
     expect(height).toHaveAttribute('aria-invalid', 'true');
   });
 
+  it('rejects a date of birth in the future', async () => {
+    renderCard();
+    const birth = screen.getByLabelText('Date of birth');
+    await userEvent.clear(birth);
+    await userEvent.type(birth, '2099-01-01');
+    await userEvent.click(screen.getByRole('button', { name: 'Save profile' }));
+
+    expect(await screen.findByText('Enter a valid date of birth')).toBeInTheDocument();
+    expect(birth).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('hides Redo setup until the onboarding wizard exists', () => {
+    renderCard();
+    expect(screen.queryByRole('button', { name: 'Redo setup' })).not.toBeInTheDocument();
+  });
+
   it('has no axe violations', async () => {
     const { container } = renderCard();
     expect(await axe(container)).toHaveNoViolations();

@@ -109,7 +109,7 @@ export default function Dashboard() {
         />
         <StatCard
           icon={Goal}
-          label={t('dashboard.stats.kgLost')}
+          label={t('dashboard.stats.toGoal')}
           value={`${Math.abs(weight - profile.goalWeightKg).toFixed(1)} kg`}
         />
         <StatCard

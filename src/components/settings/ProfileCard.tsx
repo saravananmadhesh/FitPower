@@ -11,6 +11,7 @@ import { profileFormSchema, type ProfileFormValues } from '@/domain/formSchemas'
 import { SEXES, type UserProfile } from '@/domain/profile';
 import { useSaveProfileMutation } from '@/queries/useProfile';
 import { ROUTES } from '@/routes';
+import { FEATURES } from '@/config/features';
 
 const ERROR_KEYS = ['birthDate', 'height', 'goalWeight'] as const;
 
@@ -143,15 +144,18 @@ export function ProfileCard({ profile }: { profile: UserProfile }) {
         </Button>
       </form>
 
-      <div className="mt-6 border-t border-border pt-4">
-        <p className="text-body-sm font-medium text-text">{t('settings.profile.retakeTitle')}</p>
-        <p className="mb-3 mt-1 text-body-sm text-text-muted">
-          {t('settings.profile.retakeDescription')}
-        </p>
-        <Button variant="secondary" onClick={() => navigate(ROUTES.onboarding)}>
-          {t('settings.profile.retake')}
-        </Button>
-      </div>
+      {/* Hidden until W1's wizard lands: the placeholder overwrites the profile. */}
+      {FEATURES.onboardingWizard && (
+        <div className="mt-6 border-t border-border pt-4">
+          <p className="text-body-sm font-medium text-text">{t('settings.profile.retakeTitle')}</p>
+          <p className="mb-3 mt-1 text-body-sm text-text-muted">
+            {t('settings.profile.retakeDescription')}
+          </p>
+          <Button variant="secondary" onClick={() => navigate(ROUTES.onboarding)}>
+            {t('settings.profile.retake')}
+          </Button>
+        </div>
+      )}
     </Card>
   );
 }

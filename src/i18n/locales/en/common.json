@@ -51,7 +51,7 @@
     "subtitle": "Day {{day}} of {{total}}",
     "stats": {
       "currentWeight": "Current weight",
-      "kgLost": "To goal",
+      "toGoal": "To goal",
       "streak": "Day streak",
       "thisWeek": "This week"
     },
