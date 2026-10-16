@@ -72,7 +72,7 @@ your device, and you can close the tab and pick up where you left off.
 | ------------------- | --------------------------------------------------------------------------------------- |
 | About you           | Name, date of birth, sex (for the calorie formula)                                      |
 | Your body           | Height, current weight, goal weight                                                     |
-| Your goal           | Lose fat, build muscle, get fitter or maintain, and a target date (12 weeks to 2 years) |
+| Your goal           | Lose fat, build muscle, get fitter or maintain, and a target date (4 weeks to 2 years)  |
 | Experience          | Beginner, intermediate or advanced                                                      |
 | Injuries and health | Knee, back, shoulder, wrist or other injuries, plus a standard health screen (PAR-Q)    |
 | Lifestyle           | How you rate your diet and health, how many days a week you can train, and for how long |
