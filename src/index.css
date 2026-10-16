@@ -1,0 +1,112 @@
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Dark theme (default) — DESIGN.md §2 */
+:root,
+.dark {
+  --color-bg: #0e0f13;
+  --color-surface: #14161c;
+  --color-card: #191c24;
+  --color-card-2: #20242e;
+  --color-border: #262a34;
+  --color-border-strong: #333949;
+  --color-text: #f5f7fa;
+  --color-text-muted: #8a92a6;
+  --color-text-subtle: #5c6474;
+
+  --color-accent: #c7f94b;
+  --color-accent-ink: #12210a;
+  --color-accent-soft: rgba(199, 249, 75, 0.12);
+
+  --color-info: #5b8def;
+  --color-info-soft: rgba(91, 141, 239, 0.12);
+  --color-teal: #2dd4bf;
+  --color-teal-soft: rgba(45, 212, 191, 0.12);
+  --color-success: #34d399;
+  --color-success-soft: rgba(52, 211, 153, 0.12);
+  --color-warning: #ffb020;
+  --color-warning-soft: rgba(255, 176, 32, 0.12);
+  --color-danger: #ff5c5c;
+  --color-danger-soft: rgba(255, 92, 92, 0.12);
+}
+
+/* Light theme — DESIGN.md §2 */
+.light {
+  --color-bg: #f4f6fa;
+  --color-surface: #ffffff;
+  --color-card: #ffffff;
+  --color-card-2: #f1f4f9;
+  --color-border: #e5e9f0;
+  --color-border-strong: #d3dae6;
+  --color-text: #12141a;
+  --color-text-muted: #5b6472;
+  --color-text-subtle: #8a93a3;
+
+  --color-accent: #6fa80f;
+  --color-accent-ink: #ffffff;
+  --color-accent-soft: rgba(111, 168, 15, 0.12);
+
+  --color-info: #5b8def;
+  --color-info-soft: rgba(91, 141, 239, 0.12);
+  --color-teal: #2dd4bf;
+  --color-teal-soft: rgba(45, 212, 191, 0.12);
+  --color-success: #34d399;
+  --color-success-soft: rgba(52, 211, 153, 0.12);
+  --color-warning: #ffb020;
+  --color-warning-soft: rgba(255, 176, 32, 0.12);
+  --color-danger: #ff5c5c;
+  --color-danger-soft: rgba(255, 92, 92, 0.12);
+}
+
+/*
+ * Density (DESIGN.md §2 "Optional comfortable/compact toggle... scales
+ * spacing + row heights via a data-attribute"). `--density-card-padding`
+ * is consumed by Card via an arbitrary-value Tailwind class.
+ */
+:root {
+  --density-card-padding: 1.25rem;
+}
+[data-density='compact'] {
+  --density-card-padding: 0.875rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    color-scheme: dark;
+  }
+  html.light {
+    color-scheme: light;
+  }
+  body {
+    @apply bg-bg text-text font-sans text-body antialiased;
+  }
+  ::selection {
+    @apply bg-accent-soft text-text;
+  }
+  :focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-accent;
+  }
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

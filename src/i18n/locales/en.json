@@ -1,0 +1,500 @@
+{
+  "app": {
+    "title": "FitPower Dashboard"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "workout": "Workout",
+    "gallery": "Gallery",
+    "schedule": "Schedule",
+    "progress": "Progress",
+    "nutrition": "Nutrition",
+    "photos": "Photos",
+    "plan": "Plan",
+    "settings": "Settings"
+  },
+  "sidebar": {
+    "nav": "Primary navigation",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar"
+  },
+  "topbar": {
+    "searchPlaceholder": "Search or run a command…",
+    "openCommandPalette": "Open command palette",
+    "toggleNav": "Toggle navigation"
+  },
+  "theme": {
+    "switchToLight": "Switch to light theme",
+    "switchToDark": "Switch to dark theme"
+  },
+  "commandPalette": {
+    "title": "Command palette",
+    "placeholder": "Type a command or search…",
+    "noResults": "No matching commands",
+    "groupNavigate": "Navigate",
+    "groupGallery": "Gallery"
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Reloading usually fixes it.",
+    "reload": "Reload app"
+  },
+  "page": {
+    "comingSoon": "This page is under construction — coming in a later milestone."
+  },
+  "common": {
+    "errorGeneric": "Something went wrong loading this.",
+    "retry": "Retry"
+  },
+  "dashboard": {
+    "subtitle": "Day {{day}} of {{total}}",
+    "stats": {
+      "currentWeight": "Current weight",
+      "kgLost": "kg lost",
+      "streak": "Day streak",
+      "thisWeek": "This week"
+    },
+    "weightChart": {
+      "title": "Weight trend",
+      "daily": "Daily",
+      "avg7": "7-day avg",
+      "goal": "Goal",
+      "emptyTitle": "No weight logged yet",
+      "emptyDescription": "Log your first weight on the Progress page to see your trend here.",
+      "ariaLabel": "Weight trend chart. Latest {{latest}} kilograms, goal {{goal}} kilograms."
+    },
+    "rings": {
+      "title": "Today's targets",
+      "calories": "Calories",
+      "water": "Water",
+      "steps": "Steps"
+    },
+    "today": {
+      "title": "Today · {{date}}",
+      "rest": "Steps day",
+      "restDescription": "No lifting today — aim for 7,000–10,000 steps. A 30–45 min walk keeps the deficit going, helps recovery, and is easy on the knees.",
+      "walkLogged": "Walk logged",
+      "logWalk": "Log today's walk",
+      "exerciseCount_one": "{{count}} exercise",
+      "exerciseCount_other": "{{count}} exercises",
+      "phase": "Phase {{n}} · {{rounds}} sets",
+      "goToWorkout": "Go to workout",
+      "completed": "Completed"
+    },
+    "scheduleStrip": {
+      "title": "This week",
+      "label": "7-day schedule strip"
+    },
+    "activity": {
+      "title": "Calories, last 7 days",
+      "ariaLabel": "Bar chart of calories logged over the last 7 days against your target"
+    },
+    "streak": {
+      "label": "Day streak"
+    },
+    "backupBanner": {
+      "message": "Back up your data — it lives only in this browser.",
+      "backupNow": "Back up now",
+      "dismiss": "Remind me later"
+    },
+    "catchUpBanner": {
+      "missed_one": "{{count}} missed session.",
+      "missed_other": "{{count}} missed sessions.",
+      "todayIsTrainingDay": "Today's a training day, knock it out to get back on track.",
+      "fitInMakeup": "Fit in a make-up session today if you can."
+    }
+  },
+  "workout": {
+    "sessionLabel": "Session",
+    "phaseLabel": "Phase {{n}} · {{rounds}} sets/exercise · ~45 min",
+    "exerciseCount_one": "{{count}} exercise",
+    "exerciseCount_other": "{{count}} exercises",
+    "markComplete": "Mark today complete",
+    "completed": "Completed",
+    "markCompleteSuccess": "Nice work — today is marked complete.",
+    "kneeCare": {
+      "title": "Knee care",
+      "body": "Keep knees tracking over toes, no bouncing, pain-free range only. Any sharp knee pain — tap swap on that exercise for a gentler alternative. Ice 10 min after if achy."
+    },
+    "timer": {
+      "readyLabel": "Ready",
+      "workLabel": "Work",
+      "restLabel": "Rest",
+      "completeLabel": "Complete",
+      "pressStart": "Pick a workout & press Start",
+      "completeMessage": "Great work!",
+      "next": "Next: {{label}}",
+      "lastOne": "Last one!",
+      "start": "Start",
+      "pause": "Pause",
+      "resume": "Resume",
+      "skip": "Skip",
+      "reset": "Reset",
+      "soundCues": "Sound cues"
+    },
+    "exercise": {
+      "howTo": "how to ↗",
+      "video": "video ↗",
+      "swap": "swap",
+      "kg": "kg",
+      "reps": "reps",
+      "log": "log",
+      "saved": "saved",
+      "weightLabel": "Weight for {{name}}",
+      "repsLabel": "Reps for {{name}}",
+      "lastHint": "last: {{w}}kg × {{reps}}",
+      "savedToast": "Logged {{name}}",
+      "viewInGallery": "view in gallery",
+      "viewInGalleryLabel": "View {{name}} in the gallery"
+    },
+    "rpe": {
+      "prompt": "How did today feel? (helps decide when to add load)",
+      "options": {
+        "easy": "Too easy",
+        "right": "Just right",
+        "hard": "Too hard"
+      },
+      "tips": {
+        "easy": "Great — add a little weight or 1–2 reps next session (progressive overload).",
+        "right": "Perfect zone. Repeat, and bump the load once it starts feeling easy.",
+        "hard": "Keep the same weight next time and nail your form; it'll feel easier soon."
+      }
+    }
+  },
+  "gallery": {
+    "description": "Every dumbbell and resistance-band exercise, rated for muscle building.",
+    "loadError": "The exercise library couldn't be loaded.",
+    "albums": {
+      "arms": "Arms",
+      "shoulders": "Shoulders",
+      "chest": "Chest",
+      "back": "Back",
+      "core": "Core",
+      "legs": "Legs",
+      "full-body": "Full body"
+    },
+    "albumsLabel": "Albums",
+    "exerciseCount_one": "{{count}} exercise",
+    "exerciseCount_other": "{{count}} exercises",
+    "subAlbumCount_one": "{{count}} sub-album",
+    "subAlbumCount_other": "{{count}} sub-albums",
+    "breadcrumb": "Breadcrumb",
+    "subAlbumTabs": "Sub-albums",
+    "allTab": "All",
+    "exercisesLabel": "Exercises",
+    "sort": {
+      "label": "Sort by",
+      "score": "Score",
+      "difficulty": "Difficulty",
+      "name": "A–Z"
+    },
+    "difficulty": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "equipment": {
+      "dumbbell": "Dumbbell",
+      "band": "Band",
+      "bodyweight": "Bodyweight"
+    },
+    "knee": {
+      "caution": "Knee: caution",
+      "avoid": "Knee: avoid"
+    },
+    "bench": "Bench",
+    "score": {
+      "label": "Score {{score}} out of 10",
+      "outOf": "/10"
+    },
+    "card": {
+      "label": "{{name}}, score {{score}} out of 10, {{difficulty}}",
+      "imageAlt": "{{name}} — start position",
+      "noImage": "No demo image for {{name}}"
+    },
+    "favorites": {
+      "title": "Favorites",
+      "description": "Exercises you've starred.",
+      "cardHint": "Tap ☆ on any exercise to save it here",
+      "emptyTitle": "No favorites yet",
+      "emptyDescription": "Tap ☆ on any exercise to save it here.",
+      "browse": "Browse albums",
+      "toggle": "Favorite {{name}}",
+      "toggleError": "Couldn't update favorites"
+    },
+    "notFound": {
+      "title": "Album not found",
+      "description": "That album doesn't exist. Head back to the gallery to pick one.",
+      "action": "Back to gallery"
+    },
+    "howWeRate": {
+      "link": "How we rate",
+      "title": "How we rate exercises",
+      "intro": "Each exercise gets a composite score out of 10 for muscle-building effectiveness — based on EMG studies and evidence-based coach rankings. It is not a measure of calorie burn or of how easy the move is.",
+      "scaleTitle": "Score scale",
+      "tiers": [
+        "S-tier ≈ 9",
+        "A-tier ≈ 8–8.5",
+        "B-tier ≈ 7–7.5",
+        "C-tier ≈ 6",
+        "D-tier ≈ 4.5–5",
+        "F-tier ≈ 3.5"
+      ],
+      "sourcesTitle": "Sources",
+      "needsInternet": "Source links open in a new tab and need internet.",
+      "close": "Close"
+    },
+    "palette": {
+      "open": "Open gallery",
+      "album": "Open album: {{name}}",
+      "favorites": "Favorites"
+    },
+    "detail": {
+      "close": "Close",
+      "startAlt": "{{name}} — start position",
+      "endAlt": "{{name}} — end position",
+      "demoAlt": "{{name}} — demo",
+      "play": "Play demo",
+      "pause": "Pause demo",
+      "noImage": "No demo image for this exercise yet.",
+      "basedOn": "Based on:",
+      "factsTitle": "Facts",
+      "facts": {
+        "equipment": "Equipment",
+        "difficulty": "Difficulty",
+        "mechanic": "Type",
+        "primary": "Primary muscles",
+        "secondary": "Secondary muscles",
+        "bench": "Bench needed",
+        "yes": "Yes",
+        "no": "No",
+        "none": "—"
+      },
+      "mechanic": {
+        "compound": "Compound",
+        "isolation": "Isolation"
+      },
+      "kneeNote": {
+        "caution": "Knee: caution — keep the range pain-free.",
+        "avoid": "Knee: high knee stress — skip during knee pain."
+      },
+      "howToTitle": "How to",
+      "watchVideo": "Watch on YouTube",
+      "searchVideo": "Search YouTube",
+      "howToGuide": "How-to guide",
+      "needsInternet": "Links open in a new tab and need internet.",
+      "historyTitle": "My history",
+      "history": {
+        "last": "Last set",
+        "best": "Best set",
+        "sessions": "Sessions logged",
+        "set": "{{date}} · {{w}} kg × {{reps}}",
+        "empty": "Not logged yet — it'll appear here after you log a set in Workout."
+      }
+    }
+  },
+  "schedule": {
+    "description": "{{total}}-day calendar. Letters = workout type, R = rest.",
+    "tapHint": "Tap any past/today cell to toggle it complete.",
+    "startDate": "Program start (day 1):",
+    "gridLabel": "180-day program calendar",
+    "cellLabel": "Day {{day}}, {{date}}, {{status}}",
+    "status": {
+      "done": "done",
+      "planned": "planned",
+      "rest": "rest",
+      "missed": "missed",
+      "today": "today"
+    }
+  },
+  "progress": {
+    "description": "Log your weight and body measurements to track fat-loss progress.",
+    "weight": {
+      "logTitle": "Log weight",
+      "date": "Date",
+      "kg": "Weight (kg)",
+      "kgPlaceholder": "e.g. 79.6",
+      "save": "Save weight",
+      "savedToast": "Weight saved",
+      "trendTitle": "Trend to goal",
+      "historyTitle": "History",
+      "tableDate": "Date",
+      "tableWeight": "Weight",
+      "tableChange": "Change",
+      "delete": "Delete weight entry from {{date}}",
+      "emptyTitle": "No weight logged yet",
+      "emptyDescription": "Log your first weight above to start your trend."
+    },
+    "measure": {
+      "title": "Body measurements",
+      "hint": "Waist is the best single fat-loss signal — it often drops before the scale does.",
+      "date": "Date",
+      "waist": "Waist (cm)",
+      "chest": "Chest (cm) — optional",
+      "hip": "Hip (cm) — optional",
+      "example": "e.g. {{value}}",
+      "save": "Save measurement",
+      "savedToast": "Measurement saved",
+      "tableDate": "Date",
+      "delete": "Delete measurement from {{date}}",
+      "emptyTitle": "No measurements logged yet"
+    }
+  },
+  "nutrition": {
+    "add": "Add",
+    "rings": {
+      "calories": "Calories",
+      "protein": "Protein",
+      "water": "Water"
+    },
+    "calories": {
+      "addLabel": "Add calories",
+      "placeholder": "+ kcal"
+    },
+    "protein": {
+      "addLabel": "Add protein grams",
+      "placeholder": "+ g"
+    },
+    "water": {
+      "add250": "+250 ml",
+      "add500": "+500 ml"
+    },
+    "steps": {
+      "title": "Steps",
+      "placeholder": "today's steps",
+      "ariaLabel": "Set today's steps",
+      "set": "Set",
+      "hint": "Enter the total from your phone/watch — it replaces, not adds."
+    },
+    "activity": {
+      "title": "7-day calorie log"
+    },
+    "resetToday": "Reset today",
+    "resetConfirm": "Reset today's calories, protein, water and steps?",
+    "resetToast": "Today's nutrition has been reset"
+  },
+  "photos": {
+    "description": "Track your physique changes over time.",
+    "hint": "Each photo is saved in the app named by date. For the fairest comparison: same spot, same lighting, front + side.",
+    "take": "Take photo",
+    "upload": "Upload",
+    "addError": "Couldn't save that photo — storage may be full. Try a smaller image.",
+    "deleteConfirm": "Delete this photo?",
+    "savedToast": "Photo saved",
+    "savedSyncedToast": "Photo saved and synced to your folder",
+    "syncingTo": "Syncing to {{name}}",
+    "compare": {
+      "title": "First ↔ latest",
+      "first": "start",
+      "latest": "latest"
+    },
+    "gallery": {
+      "title": "Gallery",
+      "emptyTitle": "No photos yet",
+      "emptyDescription": "Tap \"Take photo\" or \"Upload\" to add your first.",
+      "open": "View {{name}} full size",
+      "download": "Download {{name}}",
+      "delete": "Delete {{name}}"
+    },
+    "lightbox": {
+      "close": "Close"
+    }
+  },
+  "settings": {
+    "description": "Theme, density, program start date, backups, and data reset.",
+    "appearance": {
+      "title": "Appearance",
+      "lightTheme": "Light theme",
+      "compactDensity": "Compact density"
+    },
+    "program": {
+      "title": "Program",
+      "startDateHint": "Day 1 of your 180-day program. Editable any time — also on the Schedule page."
+    },
+    "backup": {
+      "title": "Backup",
+      "description": "Everything is saved in this browser on your device — nothing leaves your machine. Back it up here, or restore a backup (including one exported from the original v1 tracker).",
+      "export": "Export backup (JSON)",
+      "import": "Import backup",
+      "exportedToast": "Backup exported",
+      "importedToast": "Backup imported",
+      "importError": "That file isn't a valid backup",
+      "lastBackup": "Last backup: {{date}}"
+    },
+    "reset": {
+      "title": "Reset everything",
+      "description": "Erase all data on this device and start over. This cannot be undone.",
+      "button": "Reset everything",
+      "confirm": "Erase ALL data and start over? This cannot be undone.",
+      "toast": "All data has been reset"
+    },
+    "photoFolder": {
+      "title": "Photos folder",
+      "description": "Connect a folder on your computer to save new progress photos there directly, and import photos already in it. Photos still stay in the app either way — this is optional.",
+      "unsupported": "Folder sync isn't available in this browser — it needs Chrome or Edge.",
+      "connect": "Connect a folder",
+      "connectedToast": "Folder connected",
+      "importNow": "Import photos from folder",
+      "importedToast_one": "Imported {{count}} photo",
+      "importedToast_other": "Imported {{count}} photos",
+      "disconnect": "Disconnect",
+      "permissionNeeded": "Permission for \"{{name}}\" needs to be re-granted (browsers don't keep this across restarts).",
+      "reconnect": "Reconnect",
+      "reconnectedToast": "Reconnected",
+      "permissionDeniedToast": "Permission was denied"
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "That page doesn't exist. Check the URL, or head back to the dashboard.",
+    "action": "Go to dashboard"
+  },
+  "plan": {
+    "description": "The 6-phase plan, weekly split, and nutrition targets behind your program.",
+    "goal": {
+      "title": "The goal, honestly",
+      "honest": "Losing ~10 kg (80 → 70) over 180 days is about 0.4 kg/week — a safe, sustainable pace. The plan is built to lose fat while keeping muscle, so you look leaner rather than just lighter — that's why protein and resistance training matter more than cardio here.",
+      "movesTitle": "What actually moves your goals",
+      "moves": {
+        "items": [
+          "Flatter stomach / slimmer waist — ~90% nutrition. The calorie deficit does this; there's no ab exercise that \"burns\" belly fat.",
+          "Leaner chest — the same deficit, with DB floor press and push work keeping the muscle underneath firm as fat drops.",
+          "Shoulder definition — DB shoulder press and lateral raises in your full-body sessions, progressed over time (log your sets so the weight climbs).",
+          "Overall fitter look — consistency across the 3 weekly full-body sessions plus 7–10k steps every day."
+        ]
+      },
+      "stepsTip": "Now on a 3-day full-body split (Mon/Wed/Fri) with 7,000–10,000 steps every day — more recovery between lifts, and the daily steps are your biggest lever for central fat. Completely knee-safe."
+    },
+    "phases": {
+      "title": "The 6-phase plan",
+      "phaseLabel": "Phase {{n}} · {{name}}",
+      "days": "Days {{days}}",
+      "current": "current",
+      "rounds": "{{rounds}} sets · ~45 min"
+    },
+    "split": {
+      "title": "Weekly split"
+    },
+    "nutrition": {
+      "title": "Nutrition targets",
+      "description": "Based on Mifflin-St Jeor for 166 cm at your logged weight ({{weight}} kg), lightly active, with a ~450 kcal fat-loss deficit.",
+      "bmr": "BMR",
+      "tdee": "Maintenance",
+      "target": "Daily target",
+      "protein": "Protein",
+      "water": "Water",
+      "goalHint": "Recalculated automatically whenever you log a new weight. Starting {{start}} kg, goal {{goal}} kg."
+    },
+    "kneeRules": {
+      "title": "Knee rules (read once, follow always)",
+      "items": [
+        "Knees track over toes, never caving inward.",
+        "Only move through a pain-free range — shallow is fine, especially on wall sits and goblet squats.",
+        "No bouncing or jumping anywhere in the program.",
+        "Sharp pain = stop that movement, swap the marked alternative, keep going.",
+        "Warm up every session (the timer includes it) and ice 10 minutes after if the knee feels achy.",
+        "If pain worsens or persists beyond a couple of weeks, see a physiotherapist."
+      ]
+    }
+  }
+}
