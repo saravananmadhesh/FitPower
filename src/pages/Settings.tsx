@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { PhotoFolderCard } from '@/components/settings/PhotoFolderCard';
 import { ProfileCard } from '@/components/settings/ProfileCard';
+import { AiSettingsCard } from '@/components/coach/AiSettingsCard';
 import { useUiStore } from '@/store/useUiStore';
 import { isSetUp, useAppDataQuery, type ReadyAppData } from '@/queries/useAppDataQuery';
 import {
@@ -130,6 +131,8 @@ function SettingsContent({ data }: { data: ReadyAppData }) {
           />
         </label>
       </Card>
+
+      <AiSettingsCard />
 
       <PhotoFolderCard />
 

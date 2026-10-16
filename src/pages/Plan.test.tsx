@@ -31,7 +31,8 @@ describe('Plan page', () => {
   it('shows the AI-not-connected notice and recommends a built-in level', async () => {
     const { container } = renderPlan();
     expect(await screen.findByRole('heading', { name: 'AI coach not connected' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Connect AI' })).toHaveProperty('disabled', true);
+    // The coach is on, so the button is live and leads to it.
+    expect(screen.getByRole('button', { name: 'Connect AI' })).toHaveProperty('disabled', false);
     expect(screen.getByText('Original program')).toBeTruthy();
 
     const easy = screen.getByRole('heading', { name: 'Easy' }).closest('li') as HTMLElement;
