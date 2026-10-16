@@ -320,3 +320,22 @@ test('retaking setup keeps the running program and can be cancelled', async ({ p
   // "kg lost" still counts from the original 80 kg start.
   await expect(page.getByText('-3.8 kg', { exact: true })).toBeVisible();
 });
+
+test('reset everything also drops a half-finished setup', async ({ page }) => {
+  await seedProfile(page);
+  await page.goto('/onboarding');
+  await page.getByLabel('Your name').fill('Old Name');
+  await next(page);
+  await heading(page, 'Your body');
+
+  // Leave setup mid-way, then reset from Settings.
+  await page.goto('/settings');
+  page.once('dialog', (dialog) => void dialog.accept());
+  await page.getByRole('button', { name: 'Reset everything' }).click();
+  await expect(page.getByText('All data has been reset')).toBeVisible();
+
+  await page.goto('/');
+  await expect(page).toHaveURL(/\/onboarding$/);
+  await heading(page, 'About you');
+  await expect(page.getByLabel('Your name')).toHaveValue('');
+});
