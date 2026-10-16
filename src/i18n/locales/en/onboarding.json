@@ -1,7 +1,209 @@
 {
-  "placeholder": {
-    "title": "Welcome to FitPower",
-    "body": "Guided setup is coming soon. For now you can start with the default 180-day program and adjust it later.",
-    "start": "Start with the default program"
+  "brand": "FitPower",
+  "tagline": "Let's set up your plan. Your answers stay on this device.",
+  "progress": "Step {{current}} of {{total}}",
+  "progressLabel": "Setup progress",
+  "back": "Back",
+  "next": "Continue",
+  "optional": "Optional",
+  "resumed": "Picked up where you left off.",
+  "steps": {
+    "about": {
+      "title": "About you",
+      "description": "A few basics so we can tailor the plan."
+    },
+    "body": {
+      "title": "Your body",
+      "description": "Used for calorie and protein targets. You can update your weight any time."
+    },
+    "goal": {
+      "title": "Your goal",
+      "description": "What you want to achieve and by when."
+    },
+    "experience": {
+      "title": "Training experience",
+      "description": "How much strength or fitness training have you done before?"
+    },
+    "health": {
+      "title": "Injuries and health",
+      "description": "We use this to pick safer exercises. Tick anything that applies."
+    },
+    "lifestyle": {
+      "title": "Lifestyle",
+      "description": "Be honest, there are no wrong answers."
+    },
+    "plan": {
+      "title": "Choose your plan",
+      "description": "We recommend a level from your answers. You can pick another."
+    }
+  },
+  "about": {
+    "name": "Your name",
+    "namePlaceholder": "e.g. Alex",
+    "birthDate": "Date of birth",
+    "age": "You're {{count}} years old",
+    "sex": "Sex",
+    "sexHint": "Only used to estimate your calorie needs.",
+    "sexOptions": {
+      "male": "Male",
+      "female": "Female",
+      "unspecified": "Prefer not to say"
+    }
+  },
+  "body": {
+    "height": "Height (cm)",
+    "weight": "Current weight (kg)",
+    "goalWeight": "Goal weight (kg)",
+    "bmi": "BMI {{value}}",
+    "change_lose": "Goal: lose {{kg}} kg",
+    "change_gain": "Goal: gain {{kg}} kg",
+    "change_same": "Goal: keep your current weight"
+  },
+  "goal": {
+    "goalType": "Main goal",
+    "types": {
+      "fat-loss": { "label": "Lose fat", "hint": "Slim down while keeping muscle" },
+      "muscle": { "label": "Build muscle", "hint": "Get stronger and add size" },
+      "fitness": { "label": "Get fitter", "hint": "More energy, stamina and mobility" },
+      "maintain": { "label": "Stay healthy", "hint": "Keep your current shape" }
+    },
+    "startDate": "Start date",
+    "startHint": "Day 1 of your plan.",
+    "targetDate": "Target date",
+    "targetHint": "Your plan runs until this date.",
+    "presets": "Quick picks",
+    "preset": {
+      "84": "12 weeks",
+      "180": "6 months",
+      "365": "1 year"
+    },
+    "length": "Your plan: {{days}} days (about {{weeks}} weeks)"
+  },
+  "experience": {
+    "levels": {
+      "beginner": {
+        "label": "Beginner",
+        "hint": "New to training, or back after a long break"
+      },
+      "intermediate": {
+        "label": "Intermediate",
+        "hint": "Trained regularly for 6 months or more"
+      },
+      "advanced": {
+        "label": "Advanced",
+        "hint": "Several years of consistent, structured training"
+      }
+    }
+  },
+  "health": {
+    "injuries": "Injuries or pain",
+    "injuriesHint": "Leave empty if nothing bothers you.",
+    "areas": {
+      "knee": "Knee",
+      "back": "Back",
+      "shoulder": "Shoulder",
+      "wrist": "Wrist or elbow",
+      "other": "Other"
+    },
+    "side": "Side",
+    "sides": {
+      "": "Not sure",
+      "left": "Left",
+      "right": "Right",
+      "both": "Both"
+    },
+    "note": "Details",
+    "notePlaceholder": "e.g. hurts on deep squats",
+    "parq": "Health screen",
+    "parqHint": "Tick any that apply to you.",
+    "parqQuestions": {
+      "heart": "A doctor has said I have a heart condition or high blood pressure",
+      "chestPain": "I get chest pain at rest, in daily life or when active",
+      "dizziness": "In the last 12 months I've lost balance from dizziness or lost consciousness",
+      "chronic": "I have another long-term medical condition",
+      "medication": "I take prescribed medication for a long-term condition",
+      "joint": "I have a bone, joint or muscle problem that activity could make worse",
+      "supervised": "A doctor has said I should only exercise under medical supervision"
+    },
+    "conditions": "Other health notes",
+    "conditionsPlaceholder": "e.g. asthma, recent surgery, pregnancy",
+    "doctorTitle": "Please check with a doctor first",
+    "doctorBody": "Based on your answers, talk to a doctor before starting a new exercise plan. FitPower is not medical advice.",
+    "cleared": "A doctor has cleared me to exercise"
+  },
+  "lifestyle": {
+    "diet": "How would you rate your diet?",
+    "health": "How would you rate your overall health?",
+    "ratingLow": "Poor",
+    "ratingHigh": "Excellent",
+    "ratings": {
+      "1": "Poor",
+      "2": "Fair",
+      "3": "Okay",
+      "4": "Good",
+      "5": "Excellent"
+    },
+    "days": "Workout days per week",
+    "daysOption": "{{count}} days",
+    "minutes": "Time per workout",
+    "minutesOption": "{{count}} min",
+    "equipment": "Equipment you have",
+    "equipmentHint": "A pair of dumbbells and a resistance band is all you need for a full home program.",
+    "equipmentOptions": {
+      "dumbbell": "Dumbbells",
+      "band": "Resistance bands",
+      "bodyweight": "Bodyweight only"
+    }
+  },
+  "plan": {
+    "summary": "Your answers",
+    "summaryGoal": "{{goal}} · {{days}} days, from {{start}} to {{end}}",
+    "summaryBody": "{{height}} cm · {{weight}} → {{goalWeight}} kg",
+    "summaryTraining": "{{experience}} · {{days}} days a week · {{minutes}} min",
+    "summaryInjuries": "Taking care of: {{areas}}",
+    "level": "Built-in plan",
+    "recommended": "Recommended",
+    "levels": {
+      "easy": {
+        "label": "Easy",
+        "hint": "Fewer rounds and longer rests. Great for starting out or coming back."
+      },
+      "intermediate": {
+        "label": "Intermediate",
+        "hint": "The balanced program: steady progress with full-body sessions."
+      },
+      "hard": {
+        "label": "Hard",
+        "hint": "More rounds and shorter rests for experienced trainees."
+      }
+    },
+    "aiTitle": "Design with AI",
+    "aiBody": "Connect your own AI key and a coach will interview you and design the plan.",
+    "aiCta": "Design with AI instead",
+    "aiOffTitle": "AI coach not connected",
+    "aiOffBody": "The built-in plans work fully offline. You can redesign your plan with an AI coach later.",
+    "create": "Create my plan",
+    "created": "Your plan is ready",
+    "saveError": "Couldn't save your plan. Please try again."
+  },
+  "errors": {
+    "date": "Enter a date",
+    "nameLength": "Use 60 characters or fewer",
+    "age": "You need to be between 13 and 100 years old",
+    "sex": "Choose an option",
+    "height": "Enter a height between 100 and 250 cm",
+    "weight": "Enter a weight between 30 and 300 kg",
+    "goalWeight": "Enter a goal weight between 30 and 300 kg",
+    "goalType": "Choose a goal",
+    "startDate": "Pick a start date within 60 days of today",
+    "targetDate": "Pick a target date between 4 weeks and 2 years after the start",
+    "experience": "Choose your experience level",
+    "noteLength": "Use 500 characters or fewer",
+    "conditionsLength": "Use 600 characters or fewer",
+    "rating": "Choose a rating",
+    "daysPerWeek": "Choose how many days",
+    "minutes": "Choose a session length",
+    "equipment": "Pick at least one option",
+    "level": "Choose a plan"
   }
 }

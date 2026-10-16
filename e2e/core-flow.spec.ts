@@ -47,16 +47,7 @@ test('log weight, complete a workout, and see both reflected on the dashboard', 
   expect(errors).toEqual([]);
 });
 
-test('a first-time visitor is sent to onboarding and can start the default program', async ({
-  page,
-}) => {
-  await page.goto('/progress');
-  await expect(page).toHaveURL(/\/onboarding$/);
-
-  await page.getByRole('button', { name: 'Start with the default program' }).click();
-  await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByText('Day 1 of 180')).toBeVisible();
-});
+// First-run onboarding is covered by e2e/onboarding.spec.ts.
 
 test('an install from before profiles keeps its data and skips onboarding', async ({ page }) => {
   await page.clock.setFixedTime(new Date(2026, 0, 5, 10, 0, 0));
