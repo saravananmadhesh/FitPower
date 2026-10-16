@@ -25,7 +25,7 @@ const draft = {
       id: 'B',
       name: 'Arms',
       focus: 'Arms',
-      exercises: [{ catalogId: 'One_Arm_Dumbbell_Preacher_Curl', reps: '10 reps' }],
+      exercises: [{ catalogId: 'Dumbbell_Bicep_Curl', reps: '10 reps' }],
     },
   ],
   phases: [

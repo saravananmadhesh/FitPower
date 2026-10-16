@@ -1,6 +1,7 @@
 import type { Catalog, CatalogExercise } from '@/domain/catalog';
-import { isTrainingSlot, trainingPlanSchema, WEEKDAYS, type TrainingPlan } from '@/domain/plan';
-import { hasInjury, userProfileSchema, type UserProfile } from '@/domain/profile';
+import { trainingPlanSchema, type TrainingPlan } from '@/domain/plan';
+import { checkPlan, needsKneeCaution, ruleContextFor } from '@/domain/planRules';
+import { userProfileSchema, type UserProfile } from '@/domain/profile';
 
 /** What the model sends to `propose_plan`. The harness fills in the rest. */
 export interface AiPlanDraft {
@@ -32,9 +33,9 @@ function issuePath(path: PropertyKey[]): string {
 
 /**
  * Turns a model draft into a `TrainingPlan` and checks it: the shared zod
- * schema first, then app rules the schema can't know (every exercise is in
- * the catalog, uses the user's equipment, and respects their injuries).
- * Errors go back to the model so it can fix the draft and try again.
+ * schema, then the shared plan rules (`domain/planRules.checkPlan`) that the
+ * built-in generator also obeys. Errors go back to the model so it can fix
+ * the draft and try again; warnings go back as cautions.
  */
 export function checkPlanDraft(
   draft: AiPlanDraft,
@@ -88,32 +89,22 @@ export function checkPlanDraft(
   }
   if (errors.length > 0 || !parsed.success) return { ok: false, errors };
 
+  // The same safety and fit rules the built-in generator follows (equipment,
+  // bench, knee/back/shoulder/wrist, days per week, session length).
   const plan = parsed.data;
-  const allowed = new Set<string>([...ctx.profile.equipment, 'bodyweight']);
-  const kneeIssue = hasInjury(ctx.profile, 'knee');
-  plan.sessions.forEach((session, si) => {
-    session.exercises.forEach((ex, ei) => {
+  const ruleCtx = ruleContextFor(ctx.profile);
+  for (const issue of checkPlan(plan, ctx.profile, ctx.catalog.exercises)) {
+    const line = `${issuePath(issue.path) || 'plan'}: ${issue.message}`;
+    if (issue.severity === 'error') errors.push(line);
+    else warnings.push(line);
+  }
+  for (const session of plan.sessions) {
+    for (const ex of session.exercises) {
       const found = ex.catalogId ? byId.get(ex.catalogId) : undefined;
-      if (!found) return;
-      const where = `sessions[${si}].exercises[${ei}] (${found.name})`;
-      if (!allowed.has(found.equipment)) {
-        errors.push(
-          `${where}: needs ${found.equipment}, but the user only has ${[...allowed].join(', ')}`,
-        );
+      if (found && needsKneeCaution(found, ruleCtx)) {
+        warnings.push(`${found.name} is knee-caution; add a pain-free, partial-range note.`);
       }
-      if (kneeIssue && found.knee === 'avoid') {
-        errors.push(`${where}: flagged "avoid" for knee problems, and the user has a knee injury`);
-      } else if (kneeIssue && found.knee === 'caution') {
-        warnings.push(`${found.name} is marked knee-caution; keep the range pain-free.`);
-      }
-    });
-  });
-
-  const trainingDays = WEEKDAYS.filter((d) => isTrainingSlot(plan.weekly[d])).length;
-  if (trainingDays > ctx.profile.daysPerWeek) {
-    errors.push(
-      `weekly: ${trainingDays} training days, but the user can train ${ctx.profile.daysPerWeek} days a week. Reduce them, or call update_profile first if the user agreed to more.`,
-    );
+    }
   }
 
   return errors.length > 0 ? { ok: false, errors } : { ok: true, plan, warnings };

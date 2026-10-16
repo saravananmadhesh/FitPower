@@ -4,6 +4,7 @@ import { missedCount, rollingAvg, streakCount, weekStats } from '@/domain/metric
 import { currentWeight, targetsForProfile } from '@/domain/nutrition';
 import { isTrainingDay, phaseFor, type TrainingPlan } from '@/domain/plan';
 import { ageOn, type UserProfile } from '@/domain/profile';
+import { exclusionReason, ruleContextFor } from '@/domain/planRules';
 import { ALBUM_IDS, DIFFICULTIES, EQUIPMENT } from '@/domain/constants';
 import type { AppData } from '@/types';
 import type { ToolDefinition } from './types';
@@ -110,6 +111,11 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
         },
         mechanic: { type: 'string', enum: ['compound', 'isolation'] },
         noBench: { type: 'boolean' },
+        includeExcluded: {
+          type: 'boolean',
+          description:
+            "Default false: only moves this user's plan may contain (their equipment, no bench, safe for their injuries). True also lists excluded moves with the reason.",
+        },
         query: { type: 'string', description: 'Name or muscle contains this text' },
         limit: { type: 'integer', minimum: 1, maximum: 40, default: 20 },
       },
@@ -204,7 +210,13 @@ function str(v: unknown): string | undefined {
   return typeof v === 'string' && v.trim() ? v.trim() : undefined;
 }
 
-function searchExercises(input: Record<string, unknown>, catalog: Catalog): unknown {
+function searchExercises(
+  input: Record<string, unknown>,
+  catalog: Catalog,
+  profile: UserProfile,
+): unknown {
+  const rules = ruleContextFor(profile);
+  const includeExcluded = input.includeExcluded === true;
   const equipment = Array.isArray(input.equipment) ? (input.equipment as string[]) : undefined;
   const maxDiff = str(input.maxDifficulty) as keyof typeof DIFFICULTY_RANK | undefined;
   const query = str(input.query)?.toLowerCase();
@@ -223,6 +235,7 @@ function searchExercises(input: Record<string, unknown>, catalog: Catalog): unkn
     if (input.knee === 'not-avoid' && ex.knee === 'avoid') return false;
     if (str(input.mechanic) && ex.mechanic !== input.mechanic) return false;
     if (input.noBench === true && ex.needsBench) return false;
+    if (!includeExcluded && exclusionReason(ex, rules)) return false;
     if (query) {
       const hay = [ex.name, ...ex.aliases, ...ex.primaryMuscles].join(' ').toLowerCase();
       if (!hay.includes(query)) return false;
@@ -230,7 +243,13 @@ function searchExercises(input: Record<string, unknown>, catalog: Catalog): unkn
     return true;
   });
   rows.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
-  return { total: rows.length, exercises: rows.slice(0, limit).map(slim) };
+  return {
+    total: rows.length,
+    exercises: rows.slice(0, limit).map((ex) => {
+      const excluded = exclusionReason(ex, rules);
+      return excluded ? { ...slim(ex), excludedFor: excluded } : slim(ex);
+    }),
+  };
 }
 
 function profileView(profile: UserProfile, today: string): unknown {
@@ -367,7 +386,7 @@ export function runTool(
           })),
         );
       case 'search_exercises':
-        return json(searchExercises(input, ctx.catalog));
+        return json(searchExercises(input, ctx.catalog, ctx.data.profile));
       case 'get_exercise': {
         const ex = ctx.catalog.exercises.find((e) => e.id === input.id);
         if (!ex) return fail(`No exercise with id "${String(input.id)}"`);
