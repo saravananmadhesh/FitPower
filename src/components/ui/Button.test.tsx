@@ -41,7 +41,7 @@ describe('Button', () => {
     ['primary', 'text-accent-ink'],
     ['secondary', 'text-text'],
     ['ghost', 'text-text-muted'],
-    ['danger', 'text-white'],
+    ['danger', 'text-bg'],
   ] as const)(
     'keeps its %s text-color class after merging with the size class (regression: tailwind-merge silently dropped custom color utilities it did not recognize, e.g. text-accent-ink vs text-body, leaving buttons with near-invisible contrast)',
     (variant, expectedClass) => {

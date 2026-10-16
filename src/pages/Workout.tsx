@@ -217,7 +217,7 @@ function WorkoutContent({ data }: { data: ReadyAppData }) {
           <p className="text-body-sm font-medium text-text">
             {kneeInjury ? t('workout.kneeCare.title') : t('workout.formCare.title')}
           </p>
-          <p className="mt-1 text-body-sm text-text-muted">
+          <p className="mt-1 text-body-sm text-text">
             {(showSessionNote ? session.note : undefined) ??
               (kneeInjury ? t('workout.kneeCare.body') : t('workout.formCare.body'))}
           </p>

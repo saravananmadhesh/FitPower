@@ -36,7 +36,9 @@ export function ScheduleStrip({ today, todayKey, plan, done }: ScheduleStripProp
             role="listitem"
             className={cn(
               'flex flex-1 flex-col items-center gap-1 rounded-md border px-2 py-2 text-center',
-              isBeforeStart && 'border-border bg-card-2 opacity-50',
+              // Muted text rather than opacity, so days before the program starts
+              // still read as inactive but keep AA contrast.
+              isBeforeStart && 'border-dashed border-border bg-card-2',
               !isBeforeStart && isDone && 'border-success/40 bg-success-soft',
               !isBeforeStart && isMissed && 'border-danger/40 bg-danger-soft',
               !isBeforeStart && isRest && !isDone && 'border-border bg-card-2',
@@ -47,7 +49,9 @@ export function ScheduleStrip({ today, todayKey, plan, done }: ScheduleStripProp
             <span className="text-caption text-text-muted">
               {d.toLocaleDateString(undefined, { weekday: 'short' })}
             </span>
-            <span className="text-h3 text-text">{isRest ? 'R' : type}</span>
+            <span className={cn('text-h3', isBeforeStart ? 'text-text-muted' : 'text-text')}>
+              {isRest ? 'R' : type}
+            </span>
           </div>
         );
       })}
