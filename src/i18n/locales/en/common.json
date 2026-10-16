@@ -11,6 +11,7 @@
     "nutrition": "Nutrition",
     "photos": "Photos",
     "plan": "Plan",
+    "coach": "AI coach",
     "settings": "Settings"
   },
   "sidebar": {
@@ -297,7 +298,7 @@
     "description": "{{total}}-day calendar. Letters = workout type, R = rest.",
     "tapHint": "Tap any past/today cell to toggle it complete.",
     "startDate": "Program start (day 1):",
-    "gridLabel": "180-day program calendar",
+    "gridLabel": "{{total}}-day program calendar",
     "cellLabel": "Day {{day}}, {{date}}, {{status}}",
     "status": {
       "done": "done",
@@ -409,7 +410,7 @@
     },
     "program": {
       "title": "Program",
-      "startDateHint": "Day 1 of your 180-day program. Editable any time — also on the Schedule page."
+      "startDateHint": "Day 1 of your {{total}}-day program. Editable any time — also on the Schedule page."
     },
     "backup": {
       "title": "Backup",
@@ -453,7 +454,7 @@
     "description": "The 6-phase plan, weekly split, and nutrition targets behind your program.",
     "goal": {
       "title": "The goal, honestly",
-      "honest": "Losing ~10 kg (80 → 70) over 180 days is about 0.4 kg/week — a safe, sustainable pace. The plan is built to lose fat while keeping muscle, so you look leaner rather than just lighter — that's why protein and resistance training matter more than cardio here.",
+      "honest": "Losing ~{{loss}} kg ({{start}} → {{goal}}) over {{days}} days is about {{rate}} kg/week — a safe, sustainable pace. The plan is built to lose fat while keeping muscle, so you look leaner rather than just lighter — that's why protein and resistance training matter more than cardio here.",
       "movesTitle": "What actually moves your goals",
       "moves": {
         "items": [
@@ -473,11 +474,13 @@
       "rounds": "{{rounds}} sets · ~45 min"
     },
     "split": {
-      "title": "Weekly split"
+      "title": "Weekly split",
+      "walk": "Walk · 7–10k steps",
+      "rest": "Walk / rest · 7–10k steps"
     },
     "nutrition": {
       "title": "Nutrition targets",
-      "description": "Based on Mifflin-St Jeor for 166 cm at your logged weight ({{weight}} kg), lightly active, with a ~450 kcal fat-loss deficit.",
+      "description": "Based on Mifflin-St Jeor for {{height}} cm at your logged weight ({{weight}} kg), lightly active, with a ~450 kcal fat-loss deficit.",
       "bmr": "BMR",
       "tdee": "Maintenance",
       "target": "Daily target",

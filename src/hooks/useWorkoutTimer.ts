@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react';
-import { buildTimerPlan, type Exercise, type PhaseConfig, type TimerStep } from '@/domain/program';
+import { buildTimerPlan, type Exercise, type TimerPhase, type TimerStep } from '@/domain/program';
 import { beep } from '@/utils/audio';
 
 function isRestStep(step: TimerStep): boolean {
@@ -78,7 +78,7 @@ interface UseWorkoutTimerOptions {
  */
 export function useWorkoutTimer(
   exercises: Exercise[],
-  phase: PhaseConfig,
+  phase: TimerPhase,
   { soundEnabled }: UseWorkoutTimerOptions,
 ) {
   const [state, dispatch] = useReducer(reducer, initialState);

@@ -1,4 +1,13 @@
-import type { AppData, Measurement, Photo, Rpe, SetLog, WeightEntry } from '@/types';
+import type {
+  AppData,
+  Measurement,
+  Photo,
+  Rpe,
+  SetLog,
+  TrainingPlan,
+  UserProfile,
+  WeightEntry,
+} from '@/types';
 
 /**
  * The data-access seam. UI never talks to storage directly — it goes
@@ -8,6 +17,13 @@ import type { AppData, Measurement, Photo, Rpe, SetLog, WeightEntry } from '@/ty
 export interface LogRepository {
   getAppData(): Promise<AppData>;
   setStartDate(date: string): Promise<void>;
+  /** Null until onboarding (or the legacy migration) has created one. */
+  getProfile(): Promise<UserProfile | null>;
+  /** Validates and stores the profile; rejects an invalid one. */
+  saveProfile(profile: UserProfile): Promise<UserProfile>;
+  getPlan(): Promise<TrainingPlan | null>;
+  /** Validates and activates the plan; its startDate becomes the program's day 1. */
+  savePlan(plan: TrainingPlan): Promise<TrainingPlan>;
   saveWeight(entry: WeightEntry): Promise<void>;
   deleteWeight(date: string): Promise<void>;
   saveMeasurement(entry: Measurement): Promise<void>;

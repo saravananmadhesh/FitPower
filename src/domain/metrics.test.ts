@@ -1,9 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { backupDue, getLastSet, missedCount, rollingAvg, streakCount, weekStats } from './metrics';
+import { legacyPlan } from './plans/legacy';
+import type { TrainingPlan } from './plan';
 
 // Fixture: 2026-01-05 is a Monday. Lifting days are Mon(A)/Wed(B)/Fri(C);
 // Tue/Thu/Sat/Sun are 'R' walk/step days that don't count toward streaks.
 const START = '2026-01-05';
+
+/** The legacy plan, cut to `totalDays` (one phase covering it). */
+function planOf(totalDays: number): TrainingPlan {
+  const plan = legacyPlan(START, 'test');
+  return { ...plan, totalDays, phases: [{ ...plan.phases[0], endDay: totalDays }] };
+}
+const PLAN = planOf(10);
 
 describe('streakCount (consecutive done lifting-days ending at/before today; today-not-done does not break)', () => {
   it('counts back through today when today is not yet done', () => {
@@ -12,7 +21,7 @@ describe('streakCount (consecutive done lifting-days ending at/before today; tod
       '2026-01-07': true, // Wed B
       // 2026-01-09 (Fri C, "today") not done; Tue/Thu are step days (skipped)
     };
-    expect(streakCount(START, done, '2026-01-09', 10)).toBe(2);
+    expect(streakCount(PLAN, done, '2026-01-09')).toBe(2);
   });
 
   it('breaks at the first missed lifting day walking backward', () => {
@@ -22,11 +31,11 @@ describe('streakCount (consecutive done lifting-days ending at/before today; tod
       '2026-01-09': true, // Fri C
     };
     // today Mon 2026-01-12 (A) not done -> skip; Fri done (1); Wed missed -> break.
-    expect(streakCount(START, done, '2026-01-12', 10)).toBe(1);
+    expect(streakCount(PLAN, done, '2026-01-12')).toBe(1);
   });
 
   it('is zero when nothing is done', () => {
-    expect(streakCount(START, {}, '2026-01-09', 10)).toBe(0);
+    expect(streakCount(PLAN, {}, '2026-01-09')).toBe(0);
   });
 });
 
@@ -38,11 +47,24 @@ describe('weekStats (Mon-Sun non-rest completion; 3 lifting days/week)', () => {
   };
 
   it('counts done/total for the Mon-Sun week containing today', () => {
-    expect(weekStats('2026-01-09', done)).toEqual({ done: 2, total: 3 });
+    expect(weekStats(PLAN, '2026-01-09', done)).toEqual({ done: 2, total: 3 });
   });
 
   it('resolves the same week whether "today" is mid-week or Sunday', () => {
-    expect(weekStats('2026-01-11', done)).toEqual({ done: 2, total: 3 });
+    expect(weekStats(PLAN, '2026-01-11', done)).toEqual({ done: 2, total: 3 });
+  });
+});
+
+describe('metrics follow the plan, not a fixed weekday map', () => {
+  it('counts a Tue/Thu plan on its own training days', () => {
+    const plan: TrainingPlan = {
+      ...PLAN,
+      weekly: { ...PLAN.weekly, mon: 'walk', tue: 'A', wed: 'walk', thu: 'B', fri: 'walk' },
+    };
+    const done = { '2026-01-06': true }; // Tue
+    expect(weekStats(plan, '2026-01-09', done)).toEqual({ done: 1, total: 2 });
+    expect(missedCount(plan, '2026-01-09', done)).toBe(1); // Thu 01-08 missed
+    expect(streakCount(plan, { ...done, '2026-01-08': true }, '2026-01-09')).toBe(2);
   });
 });
 
@@ -52,7 +74,7 @@ describe('missedCount (non-rest days strictly before today, not done)', () => {
       '2026-01-05': true, // Mon A
       '2026-01-07': true, // Wed B
     };
-    expect(missedCount(START, '2026-01-09', done, 10)).toBe(0);
+    expect(missedCount(PLAN, '2026-01-09', done)).toBe(0);
   });
 
   it('counts a gap before today', () => {
@@ -60,7 +82,7 @@ describe('missedCount (non-rest days strictly before today, not done)', () => {
       '2026-01-05': true, // Mon A
       // 2026-01-07 (Wed B) missed
     };
-    expect(missedCount(START, '2026-01-09', done, 10)).toBe(1);
+    expect(missedCount(PLAN, '2026-01-09', done)).toBe(1);
   });
 });
 

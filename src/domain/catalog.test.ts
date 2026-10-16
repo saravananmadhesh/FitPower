@@ -12,8 +12,9 @@ import {
   parseCatalog,
   sortExercises,
 } from './catalog';
-import en from '@/i18n/locales/en.json';
-import { ALT, LIB, WARMUP } from './program';
+import en from '@/i18n/locales/en/common.json';
+import { WARMUP } from './program';
+import { LEGACY_SESSIONS, LEGACY_SUBSTITUTIONS } from './plans/legacy';
 import type { SetLog } from '@/types';
 
 const catalog = loadCatalog();
@@ -191,7 +192,7 @@ describe('sortExercises', () => {
   });
 });
 
-describe('album names in en.json (used by the ⌘K palette, which must not load the catalog)', () => {
+describe('album names in en/common.json (used by the ⌘K palette, which must not load the catalog)', () => {
   it('match the catalog album names', () => {
     expect(en.gallery.albums).toEqual(
       Object.fromEntries(catalog.albums.map((a) => [a.id, a.name])),
@@ -230,13 +231,22 @@ describe('findByProgramName', () => {
     expect(findByProgramName('')).toBeNull();
   });
 
-  it('resolves every exercise in every LIB session', () => {
-    const names = Object.values(LIB).flatMap((s) => s.exercises.map((e) => e.name));
+  it('resolves every exercise in every legacy session', () => {
+    const names = LEGACY_SESSIONS.flatMap((s) => s.exercises.map((e) => e.name));
     expect(names.filter((n) => !findByProgramName(n))).toEqual([]);
   });
 
-  it('resolves every ALT key and substitution', () => {
-    const names = [...Object.keys(ALT), ...Object.values(ALT).flat()];
+  it('gives every legacy exercise the catalog id its name resolves to', () => {
+    for (const ex of LEGACY_SESSIONS.flatMap((s) => s.exercises)) {
+      expect(ex.catalogId, ex.name).toBe(findByProgramName(ex.name)?.id);
+    }
+  });
+
+  it('resolves every legacy substitution key and alternative', () => {
+    const names = [
+      ...Object.keys(LEGACY_SUBSTITUTIONS),
+      ...Object.values(LEGACY_SUBSTITUTIONS).flat(),
+    ];
     expect(names.filter((n) => !findByProgramName(n))).toEqual([]);
   });
 

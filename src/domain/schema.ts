@@ -1,5 +1,8 @@
 import { z } from 'zod';
 import { todayISO } from './dates';
+import { userProfileSchema } from './profile';
+import { trainingPlanSchema } from './plan';
+import { legacyPlan, legacyProfile } from './plans/legacy';
 import type { AppData } from '@/types';
 
 export const weightEntrySchema = z.object({
@@ -42,6 +45,8 @@ export const appDataSchema = z.object({
   favorites: z.array(z.string()).default([]),
   lastBackup: z.string().optional(),
   backupSnoozeUntil: z.string().optional(),
+  profile: userProfileSchema.optional(),
+  plan: trainingPlanSchema.optional(),
 });
 
 /**
@@ -64,13 +69,37 @@ export const backupImportSchema = z.object({
   favorites: z.array(z.string()).default([]),
   lastBackup: z.string().optional(),
   backupSnoozeUntil: z.string().optional(),
+  profile: userProfileSchema.optional(),
+  plan: trainingPlanSchema.optional(),
 });
 
-/** Validates + backfills a v1 or v2 JSON backup into the canonical v2 AppData shape. */
-export function normalizeBackup(raw: unknown): AppData {
+/** True when an install has anything the user logged or chose (so it predates profiles). */
+export function hasUserData(
+  data: Pick<
+    AppData,
+    'weights' | 'measure' | 'done' | 'walks' | 'nutrition' | 'sets' | 'rpe' | 'favorites'
+  >,
+): boolean {
+  return (
+    data.weights.length > 0 ||
+    data.measure.length > 0 ||
+    data.favorites.length > 0 ||
+    [data.done, data.walks, data.nutrition, data.sets, data.rpe].some(
+      (record) => Object.keys(record).length > 0,
+    )
+  );
+}
+
+/**
+ * Validates + backfills a v1, v2 or v3 JSON backup into the canonical AppData
+ * shape. A backup from before profiles existed that holds logs gets the
+ * legacy profile and plan, so its numbers come out exactly as before.
+ */
+export function normalizeBackup(raw: unknown, today: string = todayISO()): AppData {
   const parsed = backupImportSchema.parse(raw);
-  return {
-    startDate: parsed.startDate ?? todayISO(),
+  const startDate = parsed.startDate ?? parsed.plan?.startDate ?? today;
+  const data: AppData = {
+    startDate,
     startSet: parsed.startSet ?? true,
     weights: parsed.weights,
     measure: parsed.measure,
@@ -82,5 +111,12 @@ export function normalizeBackup(raw: unknown): AppData {
     favorites: [...new Set(parsed.favorites)],
     lastBackup: parsed.lastBackup,
     backupSnoozeUntil: parsed.backupSnoozeUntil,
+    profile: parsed.profile,
+    plan: parsed.plan ? { ...parsed.plan, startDate } : undefined,
   };
+  if (!data.profile && !data.plan && hasUserData(data)) {
+    data.profile = legacyProfile(startDate, today);
+    data.plan = legacyPlan(startDate);
+  }
+  return data;
 }

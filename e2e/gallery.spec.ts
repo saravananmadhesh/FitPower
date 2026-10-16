@@ -2,6 +2,7 @@
 /// <reference lib="dom" />
 import { createRequire } from 'node:module';
 import { test, expect, type Page } from '@playwright/test';
+import { seedProfile } from './fixtures/seedProfile';
 
 const axeSource = createRequire(import.meta.url).resolve('axe-core/axe.min.js');
 
@@ -26,6 +27,10 @@ async function axeViolations(page: Page): Promise<string[]> {
     (v) => `${v.id} (${v.impact}) ×${v.nodes.length}: ${v.nodes[0]?.target.join(' ')}`,
   );
 }
+
+test.beforeEach(async ({ page }) => {
+  await seedProfile(page);
+});
 
 function trackErrors(page: Page): string[] {
   const errors: string[] = [];

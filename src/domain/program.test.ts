@@ -1,41 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { phaseForDay, typeForDate, buildTimerPlan, WARMUP, PHASES } from './program';
+import { buildTimerPlan, WARMUP } from './program';
+import { LEGACY_PHASES } from './plans/legacy';
 
-describe('typeForDate (3-day full-body: Mon/Wed/Fri lift, rest walk/step days)', () => {
-  // 2026-08-24 is a Monday.
-  it.each([
-    ['2026-08-24', 'A'], // Mon — Full Body A
-    ['2026-08-25', 'R'], // Tue — walk/steps
-    ['2026-08-26', 'B'], // Wed — Full Body B
-    ['2026-08-27', 'R'], // Thu — walk/steps
-    ['2026-08-28', 'C'], // Fri — Full Body C
-    ['2026-08-29', 'R'], // Sat — walk/steps
-    ['2026-08-30', 'R'], // Sun — walk/rest
-  ])('%s -> %s', (dateKey, expected) => {
-    const [y, m, d] = dateKey.split('-').map(Number);
-    expect(typeForDate(new Date(y, m - 1, d))).toBe(expected);
-  });
-});
-
-describe('phaseForDay (v1 parity)', () => {
-  it.each([
-    [1, 1],
-    [30, 1],
-    [31, 2],
-    [60, 2],
-    [61, 3],
-    [90, 3],
-    [91, 4],
-    [120, 4],
-    [121, 5],
-    [150, 5],
-    [151, 6],
-    [180, 6],
-    [200, 6], // clamped — v1 uses Math.min(6, ...)
-  ])('day %i -> phase %i', (day, expected) => {
-    expect(phaseForDay(day)).toBe(expected);
-  });
-});
+const PHASES = LEGACY_PHASES;
 
 describe('buildTimerPlan', () => {
   it('sequences warm-up, N sets of work/rest per exercise, round rests, then cooldown', () => {

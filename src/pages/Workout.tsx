@@ -11,7 +11,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { WorkoutTimer } from '@/components/workout/WorkoutTimer';
 import { ExerciseRow } from '@/components/workout/ExerciseRow';
 import { RpeRating } from '@/components/workout/RpeRating';
-import { useAppDataQuery } from '@/queries/useAppDataQuery';
+import { isSetUp, useAppDataQuery, type ReadyAppData } from '@/queries/useAppDataQuery';
 import { useCatalogQuery } from '@/queries/useCatalogQuery';
 import {
   useMarkDoneMutation,
@@ -19,21 +19,18 @@ import {
   useSetRpeMutation,
 } from '@/queries/useAppDataMutations';
 import { useWorkoutTimer } from '@/hooks/useWorkoutTimer';
-import { ALT, LIB, PHASES, phaseForDay, typeForDate, type WorkoutType } from '@/domain/program';
+import { phaseFor, sessionById, sessionFor } from '@/domain/plan';
 import { dayNumber, todayISO } from '@/domain/dates';
 import { getLastSet } from '@/domain/metrics';
 import { findByProgramName } from '@/domain/catalog';
-import { PROGRAM_DAYS } from '@/domain/constants';
 import { howToSearchUrl, videoSearchUrl } from '@/utils/exerciseLinks';
 import { galleryExercisePath } from '@/routes';
-import type { AppData, Rpe } from '@/types';
-
-const SESSION_TYPES: WorkoutType[] = ['A', 'B', 'C'];
+import type { Rpe } from '@/types';
 
 export default function Workout() {
   const { data, isLoading, isError, refetch } = useAppDataQuery();
 
-  if (isLoading || !data) {
+  if (isLoading || !isSetUp(data)) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-14 w-full" />
@@ -48,7 +45,7 @@ export default function Workout() {
   return <WorkoutContent data={data} />;
 }
 
-function WorkoutContent({ data }: { data: AppData }) {
+function WorkoutContent({ data }: { data: ReadyAppData }) {
   const { t } = useTranslation();
   const saveSet = useSaveSetMutation();
   const setRpe = useSetRpeMutation();
@@ -58,14 +55,16 @@ function WorkoutContent({ data }: { data: AppData }) {
 
   const today = new Date();
   const todayKey = todayISO();
-  const todayType = typeForDate(today);
-  const [selectedType, setSelectedType] = useState<WorkoutType>(
-    todayType === 'R' ? 'A' : todayType,
+  const { plan } = data;
+  const substitutions = plan.substitutions;
+  // Defaults to today's session; on walk/rest days, the plan's first session.
+  const [selectedId, setSelectedId] = useState<string>(
+    () => (sessionFor(plan, today) ?? plan.sessions[0]).id,
   );
   const [subs, setSubs] = useState<Record<string, string>>({});
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-  const session = LIB[selectedType];
+  const session = sessionById(plan, selectedId) ?? plan.sessions[0];
   const exercises = useMemo(
     () =>
       session.exercises.map((ex) => ({
@@ -79,8 +78,7 @@ function WorkoutContent({ data }: { data: AppData }) {
   );
 
   const rawDay = dayNumber(data.startDate, todayKey);
-  const clampedDay = Math.max(1, Math.min(PROGRAM_DAYS, rawDay));
-  const phase = PHASES[phaseForDay(clampedDay, PROGRAM_DAYS) - 1];
+  const phase = phaseFor(plan, rawDay);
 
   const timer = useWorkoutTimer(
     exercises.map((e) => ({ name: e.name, reps: e.reps, rest: e.rest, work: e.work })),
@@ -88,14 +86,14 @@ function WorkoutContent({ data }: { data: AppData }) {
     { soundEnabled },
   );
 
-  function handleSessionChange(type: WorkoutType) {
-    setSelectedType(type);
+  function handleSessionChange(id: string) {
+    setSelectedId(id);
     setSubs({});
     timer.reset();
   }
 
   function handleSwap(origName: string) {
-    const alternatives = ALT[origName] ?? [];
+    const alternatives = substitutions[origName] ?? [];
     const options = [origName, ...alternatives];
     const current = subs[origName] ?? origName;
     const idx = options.indexOf(current);
@@ -123,13 +121,10 @@ function WorkoutContent({ data }: { data: AppData }) {
         <div className="flex w-full flex-wrap items-center justify-between gap-3">
           <label className="flex items-center gap-2 text-body-sm text-text-muted">
             {t('workout.sessionLabel')}
-            <Select
-              value={selectedType}
-              onChange={(e) => handleSessionChange(e.target.value as WorkoutType)}
-            >
-              {SESSION_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {type} · {LIB[type].name}
+            <Select value={session.id} onChange={(e) => handleSessionChange(e.target.value)}>
+              {plan.sessions.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.id} · {s.name}
                 </option>
               ))}
             </Select>
@@ -165,7 +160,7 @@ function WorkoutContent({ data }: { data: AppData }) {
         <div className="flex items-center justify-between gap-3">
           <div>
             <h3 className="text-h3 text-text">
-              {selectedType} · {session.name}
+              {session.id} · {session.name}
             </h3>
             <p className="text-body-sm text-text-muted">
               {t('workout.exerciseCount', { count: session.exercises.length })}
@@ -192,7 +187,7 @@ function WorkoutContent({ data }: { data: AppData }) {
                 key={ex.orig}
                 displayName={ex.name}
                 reps={ex.reps}
-                hasAlternatives={Boolean(ALT[ex.orig]?.length)}
+                hasAlternatives={Boolean(substitutions[ex.orig]?.length)}
                 onSwap={() => handleSwap(ex.orig)}
                 savedSet={data.sets[todayKey]?.[ex.orig]}
                 lastSet={getLastSet(data.sets, ex.orig, todayKey)}
@@ -216,7 +211,7 @@ function WorkoutContent({ data }: { data: AppData }) {
         <div className="mt-4 rounded-lg border border-warning/30 bg-warning-soft px-4 py-3">
           <p className="text-body-sm font-medium text-text">{t('workout.kneeCare.title')}</p>
           <p className="mt-1 text-body-sm text-text-muted">
-            {session.kneeNote ?? t('workout.kneeCare.body')}
+            {session.note ?? t('workout.kneeCare.body')}
           </p>
         </div>
 

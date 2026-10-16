@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { PhotoFolderCard } from '@/components/settings/PhotoFolderCard';
 import { useUiStore } from '@/store/useUiStore';
-import { useAppDataQuery } from '@/queries/useAppDataQuery';
+import { isSetUp, useAppDataQuery, type ReadyAppData } from '@/queries/useAppDataQuery';
 import {
   useImportBackupMutation,
   useRecordBackupMutation,
@@ -20,12 +20,11 @@ import {
 } from '@/queries/useAppDataMutations';
 import { todayISO } from '@/domain/dates';
 import { downloadJson } from '@/utils/downloadJson';
-import type { AppData } from '@/types';
 
 export default function Settings() {
   const { data, isLoading, isError, refetch } = useAppDataQuery();
 
-  if (isLoading || !data) {
+  if (isLoading || !isSetUp(data)) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-14 w-full" />
@@ -40,7 +39,7 @@ export default function Settings() {
   return <SettingsContent data={data} />;
 }
 
-function SettingsContent({ data }: { data: AppData }) {
+function SettingsContent({ data }: { data: ReadyAppData }) {
   const { t } = useTranslation();
   const theme = useUiStore((s) => s.theme);
   const toggleTheme = useUiStore((s) => s.toggleTheme);
@@ -115,7 +114,9 @@ function SettingsContent({ data }: { data: AppData }) {
 
       <Card>
         <h3 className="mb-1 text-h3 text-text">{t('settings.program.title')}</h3>
-        <p className="mb-3 text-body-sm text-text-muted">{t('settings.program.startDateHint')}</p>
+        <p className="mb-3 text-body-sm text-text-muted">
+          {t('settings.program.startDateHint', { total: data.plan.totalDays })}
+        </p>
         <label className="flex items-center gap-2 text-body-sm text-text-muted">
           {t('schedule.startDate')}
           <Input

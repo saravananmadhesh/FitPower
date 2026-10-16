@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 import '@/i18n';
 import { ErrorBoundary } from '@/components/app/ErrorBoundary';
 import { AppShell } from '@/components/app/AppShell';
+import { OnboardingGate } from '@/components/app/OnboardingGate';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useThemeSync } from '@/hooks/useThemeSync';
 import { armAudio } from '@/utils/audio';
@@ -20,6 +21,8 @@ const Nutrition = lazy(() => import('@/pages/Nutrition'));
 const Photos = lazy(() => import('@/pages/Photos'));
 const Plan = lazy(() => import('@/pages/Plan'));
 const Settings = lazy(() => import('@/pages/Settings'));
+const Onboarding = lazy(() => import('@/pages/Onboarding'));
+const Coach = lazy(() => import('@/pages/Coach'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
 const queryClient = new QueryClient();
@@ -48,18 +51,22 @@ function Shell() {
   return (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
-        <Route element={<AppShell />}>
-          <Route path={ROUTES.dashboard} element={<Dashboard />} />
-          <Route path={ROUTES.workout} element={<Workout />} />
-          <Route path={ROUTES.gallery} element={<Gallery />} />
-          <Route path={ROUTES.galleryAlbum} element={<GalleryAlbum />} />
-          <Route path={ROUTES.schedule} element={<Schedule />} />
-          <Route path={ROUTES.progress} element={<Progress />} />
-          <Route path={ROUTES.nutrition} element={<Nutrition />} />
-          <Route path={ROUTES.photos} element={<Photos />} />
-          <Route path={ROUTES.plan} element={<Plan />} />
-          <Route path={ROUTES.settings} element={<Settings />} />
-          <Route path="*" element={<NotFound />} />
+        <Route path={ROUTES.onboarding} element={<Onboarding />} />
+        <Route element={<OnboardingGate fallback={<RouteFallback />} />}>
+          <Route element={<AppShell />}>
+            <Route path={ROUTES.dashboard} element={<Dashboard />} />
+            <Route path={ROUTES.workout} element={<Workout />} />
+            <Route path={ROUTES.gallery} element={<Gallery />} />
+            <Route path={ROUTES.galleryAlbum} element={<GalleryAlbum />} />
+            <Route path={ROUTES.schedule} element={<Schedule />} />
+            <Route path={ROUTES.progress} element={<Progress />} />
+            <Route path={ROUTES.nutrition} element={<Nutrition />} />
+            <Route path={ROUTES.photos} element={<Photos />} />
+            <Route path={ROUTES.plan} element={<Plan />} />
+            <Route path={ROUTES.settings} element={<Settings />} />
+            <Route path={ROUTES.coach} element={<Coach />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
         </Route>
       </Routes>
     </Suspense>

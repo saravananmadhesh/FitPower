@@ -6,16 +6,14 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { CalendarGrid } from '@/components/schedule/CalendarGrid';
 import { CalendarLegend } from '@/components/schedule/CalendarLegend';
-import { useAppDataQuery } from '@/queries/useAppDataQuery';
+import { isSetUp, useAppDataQuery, type ReadyAppData } from '@/queries/useAppDataQuery';
 import { useSetStartDateMutation, useToggleDoneMutation } from '@/queries/useAppDataMutations';
 import { todayISO } from '@/domain/dates';
-import { PROGRAM_DAYS } from '@/domain/constants';
-import type { AppData } from '@/types';
 
 export default function Schedule() {
   const { data, isLoading, isError, refetch } = useAppDataQuery();
 
-  if (isLoading || !data) {
+  if (isLoading || !isSetUp(data)) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-14 w-full" />
@@ -30,7 +28,7 @@ export default function Schedule() {
   return <ScheduleContent data={data} />;
 }
 
-function ScheduleContent({ data }: { data: AppData }) {
+function ScheduleContent({ data }: { data: ReadyAppData }) {
   const { t } = useTranslation();
   const toggleDone = useToggleDoneMutation();
   const setStartDate = useSetStartDateMutation();
@@ -40,7 +38,7 @@ function ScheduleContent({ data }: { data: AppData }) {
     <div className="space-y-6">
       <PageHeader
         title={t('nav.schedule')}
-        description={t('schedule.description', { total: PROGRAM_DAYS })}
+        description={t('schedule.description', { total: data.plan.totalDays })}
       />
 
       <Card>
@@ -58,7 +56,7 @@ function ScheduleContent({ data }: { data: AppData }) {
         </div>
 
         <CalendarGrid
-          startDate={data.startDate}
+          plan={data.plan}
           todayKey={todayKey}
           done={data.done}
           onToggle={(key) => toggleDone.mutate(key)}
