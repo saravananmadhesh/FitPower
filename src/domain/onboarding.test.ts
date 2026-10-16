@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { userProfileSchema } from './profile';
+import { loadCatalog } from './catalog';
+import { generatePlan } from './planGenerator';
+import { checkPlan } from './planRules';
 import { legacyProfile } from './plans/legacy';
 import {
   aboutSchema,
@@ -76,7 +79,7 @@ describe('step validation', () => {
     const base = { goalType: 'muscle', startDate: '2026-10-17' };
     expect(schema.safeParse({ ...base, targetDate: '2026-11-13' }).success).toBe(true); // 28 days
     expect(schema.safeParse({ ...base, targetDate: '2026-11-12' }).success).toBe(false);
-    expect(schema.safeParse({ ...base, targetDate: '2027-10-17' }).success).toBe(false); // 366 days
+    expect(schema.safeParse({ ...base, targetDate: '2028-10-17' }).success).toBe(false); // 732 days
     expect(
       schema.safeParse({ ...base, startDate: '2026-01-01', targetDate: '2026-06-01' }).success,
     ).toBe(false); // already over
@@ -120,25 +123,30 @@ describe('health screen', () => {
 
 describe('recommendLevel', () => {
   it('follows experience when healthy and uninjured', () => {
-    expect(recommendLevel(answers({ experience: 'beginner' }))).toBe('easy');
-    expect(recommendLevel(answers({ experience: 'intermediate' }))).toBe('intermediate');
-    expect(recommendLevel(answers({ experience: 'advanced' }))).toBe('hard');
+    expect(recommendLevel(answers({ experience: 'beginner' })).level).toBe('easy');
+    expect(recommendLevel(answers({ experience: 'intermediate' })).level).toBe('intermediate');
+    expect(recommendLevel(answers({ experience: 'advanced' })).level).toBe('hard');
   });
 
   it('steps down for an injury or low self-rated health', () => {
     const injuries = { ...emptyInjuries(), back: { selected: true, side: '' as const, note: '' } };
-    expect(recommendLevel(answers({ experience: 'advanced', injuries }))).toBe('intermediate');
-    expect(recommendLevel(answers({ experience: 'advanced', healthRating: 2 }))).toBe(
+    expect(recommendLevel(answers({ experience: 'advanced', injuries })).level).toBe(
+      'intermediate',
+    );
+    expect(recommendLevel(answers({ experience: 'advanced', healthRating: 2 })).level).toBe(
       'intermediate',
     );
   });
 
   it('goes to Easy for an un-cleared health flag', () => {
     const parq = { ...emptyParq(), chestPain: true };
-    expect(recommendLevel(answers({ experience: 'advanced', parq }))).toBe('easy');
-    expect(recommendLevel(answers({ experience: 'advanced', parq, clearedByDoctor: true }))).toBe(
-      'hard',
-    );
+    expect(recommendLevel(answers({ experience: 'advanced', parq }))).toEqual({
+      level: 'easy',
+      reasons: ['experience-advanced', 'health-not-cleared'],
+    });
+    expect(
+      recommendLevel(answers({ experience: 'advanced', parq, clearedByDoctor: true })).level,
+    ).toBe('hard');
   });
 });
 
@@ -199,5 +207,20 @@ describe('profileFromAnswers', () => {
     expect(profileFromAnswers(answers({ weightKg: 76.2 }), 'now', 'now', 80).startWeightKg).toBe(
       80,
     );
+  });
+});
+
+describe('onboarding answers → built-in plan', () => {
+  it.each([
+    { equipment: ['bodyweight'] as const, daysPerWeek: 2, minutesPerSession: 20 },
+    { equipment: ['band'] as const, daysPerWeek: 4, minutesPerSession: 30 },
+    { equipment: ['dumbbell', 'band'] as const, daysPerWeek: 6, minutesPerSession: 60 },
+  ])('passes the plan rules for $equipment, $daysPerWeek days, $minutesPerSession min', (o) => {
+    const injuries = { ...emptyInjuries(), knee: { selected: true, side: '' as const, note: '' } };
+    const a = answers({ ...o, equipment: [...o.equipment], injuries, goalType: 'muscle' });
+    const profile = profileFromAnswers(a, 'now');
+    const plan = generatePlan(profile, recommendLevel(a).level, a.startDate, { now: 'now' });
+    expect(plan.totalDays).toBe(planLengthDays(a.startDate, a.targetDate));
+    expect(checkPlan(plan, profile, loadCatalog().exercises)).toEqual([]);
   });
 });

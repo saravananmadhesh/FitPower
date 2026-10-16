@@ -70,12 +70,13 @@ function StepForm({
   const isLast = index === total - 1;
   const schema = schemaForStep(step, today);
 
-  const recommended = useMemo(() => {
+  const recommendation = useMemo(() => {
     const ready = (['experience', 'health', 'lifestyle'] as const).every(
       (s) => schemaForStep(s, today).safeParse(draft).success,
     );
-    return ready ? recommendLevel(draft as OnboardingAnswers) : 'intermediate';
+    return ready ? recommendLevel(draft as OnboardingAnswers) : null;
   }, [draft, today]);
+  const recommended = recommendation?.level ?? 'intermediate';
 
   const form = useForm<FieldValues>({
     resolver: zodResolver(schema as never) as Resolver<FieldValues>,
@@ -176,6 +177,7 @@ function StepForm({
                   today={today}
                   answers={draft}
                   recommended={recommended}
+                  recommendReasons={recommendation?.reasons ?? []}
                   aiEnabled={aiEnabled}
                   onDesignWithAi={() => void submit('ai')()}
                   busy={saving}

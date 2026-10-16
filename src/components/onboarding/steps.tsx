@@ -354,6 +354,8 @@ function LifestyleStep() {
 interface PlanStepProps extends StepProps {
   answers: Partial<OnboardingAnswers>;
   recommended: PlanLevel;
+  /** Why that level, as keys under `plans:recommend.reasons`. */
+  recommendReasons: string[];
   aiEnabled: boolean;
   onDesignWithAi: () => void;
   busy: boolean;
@@ -363,6 +365,7 @@ interface PlanStepProps extends StepProps {
 function PlanStep({
   answers,
   recommended,
+  recommendReasons,
   aiEnabled,
   onDesignWithAi,
   busy,
@@ -438,6 +441,14 @@ function PlanStep({
           badge: l === recommended ? <Badge variant="accent">{t('plan.recommended')}</Badge> : null,
         }))}
       />
+
+      {recommendReasons.length > 0 && (
+        <p className="-mt-3 text-caption text-text-muted">
+          {t('plans:recommend.why', {
+            reasons: recommendReasons.map((r) => t(`plans:recommend.reasons.${r}`)).join(', '),
+          })}
+        </p>
+      )}
 
       <div className="flex gap-3 rounded-md border border-border p-3">
         <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-accent" aria-hidden="true" />

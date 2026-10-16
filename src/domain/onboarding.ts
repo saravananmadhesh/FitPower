@@ -1,5 +1,17 @@
 import { z } from 'zod';
 import { DIFFICULTIES, EQUIPMENT } from './constants';
+import {
+  DEFAULT_PLAN_DAYS,
+  MAX_PLAN_DAYS,
+  MIN_PLAN_DAYS,
+  PLAN_LEVELS,
+  recommendLevel as recommendForProfile,
+  type LevelRecommendation,
+  type PlanLevel,
+} from './planGenerator';
+
+// One source of truth for levels and plan length: the built-in plan generator.
+export { DEFAULT_PLAN_DAYS, MAX_PLAN_DAYS, MIN_PLAN_DAYS, PLAN_LEVELS, type PlanLevel };
 import { addDays, formatISO, parseISO } from './dates';
 import { ageOn, GOAL_TYPES, INJURY_AREAS, INJURY_SIDES, SEXES, type UserProfile } from './profile';
 
@@ -23,15 +35,8 @@ export const ONBOARDING_STEPS = [
 ] as const;
 export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 
-export const PLAN_LEVELS = ['easy', 'intermediate', 'hard'] as const;
-export type PlanLevel = (typeof PLAN_LEVELS)[number];
-
 export const MIN_AGE = 13;
 export const MAX_AGE = 100;
-/** Shortest and longest program the target date can produce (days, inclusive). */
-export const MIN_PLAN_DAYS = 28;
-export const MAX_PLAN_DAYS = 365;
-export const DEFAULT_PLAN_DAYS = 180;
 export const DAYS_PER_WEEK_OPTIONS = [2, 3, 4, 5, 6] as const;
 export const MINUTES_OPTIONS = [20, 30, 45, 60, 90] as const;
 
@@ -290,22 +295,24 @@ export function healthNotes(health: Pick<HealthValues, 'parq' | 'conditions'>): 
 }
 
 /**
- * Suggested built-in level: experience sets the starting point; low
- * self-rated health, an injury, or an un-cleared health flag steps it down.
+ * The built-in level the plan generator recommends for these answers, with
+ * its reasons (keys under `plans:recommend.reasons`).
  */
 export function recommendLevel(
   answers: Pick<
     OnboardingAnswers,
     'experience' | 'healthRating' | 'injuries' | 'parq' | 'conditions' | 'clearedByDoctor'
   >,
-): PlanLevel {
-  let index: number = DIFFICULTIES.indexOf(answers.experience);
-  const injured = Object.values(answers.injuries).some((i) => i.selected);
-  const flagged = needsDoctorNotice(answers) && !answers.clearedByDoctor;
-  if (answers.healthRating <= 2) index--;
-  if (injured || flagged) index--;
-  if (flagged) index = 0;
-  return PLAN_LEVELS[Math.max(0, Math.min(PLAN_LEVELS.length - 1, index))];
+): LevelRecommendation {
+  return recommendForProfile({
+    experience: answers.experience,
+    healthRating: answers.healthRating,
+    injuries: INJURY_AREAS.filter((a) => answers.injuries[a].selected).map((area) => ({
+      area,
+      note: '',
+    })),
+    health: { conditions: healthNotes(answers), clearedByDoctor: answers.clearedByDoctor },
+  });
 }
 
 /** Builds the profile the wizard saves. `now` is an ISO timestamp. */

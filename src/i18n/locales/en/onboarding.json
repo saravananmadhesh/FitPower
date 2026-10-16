@@ -210,7 +210,7 @@
     "goalWeight": "Enter a goal weight between 30 and 300 kg",
     "goalType": "Choose a goal",
     "startDate": "Pick a start date no more than 60 days ahead",
-    "targetDate": "Pick a target date between 4 weeks and 1 year after the start",
+    "targetDate": "Pick a target date between 4 weeks and 2 years after the start",
     "experience": "Choose your experience level",
     "noteLength": "Use 500 characters or fewer",
     "conditionsLength": "Use 600 characters or fewer",

@@ -6,7 +6,6 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { OnboardingWizard, type CompletionMode } from '@/components/onboarding/OnboardingWizard';
 import { useOnboardingDraft } from '@/components/onboarding/useOnboardingDraft';
-import { createBuiltinPlan } from '@/components/onboarding/starterPlan';
 import { useSaveProfileMutation } from '@/queries/useProfile';
 import { useAppDataQuery } from '@/queries/useAppDataQuery';
 import { useSavePlanMutation } from '@/queries/usePlan';
@@ -18,6 +17,7 @@ import {
 } from '@/domain/onboarding';
 import { todayISO } from '@/domain/dates';
 import { currentWeight } from '@/domain/nutrition';
+import { generatePlan } from '@/domain/planGenerator';
 import { FEATURES } from '@/config/features';
 import { logger } from '@/utils/logger';
 import { ROUTES } from '@/routes';
@@ -96,7 +96,7 @@ export default function Onboarding() {
         existing?.createdAt ?? now,
         sameStart ? existing.startWeightKg : answers.weightKg,
       );
-      const plan = createBuiltinPlan(profile, answers.level, answers.startDate, now);
+      const plan = generatePlan(profile, answers.level, answers.startDate, { now });
       await saveProfile.mutateAsync(profile);
       await savePlan.mutateAsync(plan);
       finished.current = true;
