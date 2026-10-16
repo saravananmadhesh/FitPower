@@ -94,3 +94,19 @@ describe('ExerciseRow', () => {
     expect(screen.queryByRole('link', { name: /gallery/ })).not.toBeInTheDocument();
   });
 });
+
+describe('Workout safety card', () => {
+  it('shows knee care only when the profile has a knee injury', async () => {
+    renderWorkout();
+    await userEvent.selectOptions(await screen.findByRole('combobox', { name: 'Session' }), 'A');
+    expect(screen.getByText('Knee care')).toBeInTheDocument();
+  });
+
+  it('shows general form tips, not the legacy knee notes, without a knee injury', async () => {
+    await localRepository.saveProfile({ ...legacyProfile(todayISO(), todayISO()), injuries: [] });
+    renderWorkout();
+    await userEvent.selectOptions(await screen.findByRole('combobox', { name: 'Session' }), 'A');
+    expect(screen.getByText('Form first')).toBeInTheDocument();
+    expect(screen.queryByText(/knee/i)).not.toBeInTheDocument();
+  });
+});

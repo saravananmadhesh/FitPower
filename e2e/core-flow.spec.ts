@@ -81,6 +81,8 @@ test('an install from before profiles keeps its data and skips onboarding', asyn
   await page.goto('/');
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByText('77.4 kg')).toBeVisible();
-  // The migrated legacy profile keeps the old 80 kg start: 2.6 kg lost.
-  await expect(page.getByText('2.6 kg', { exact: true })).toBeVisible();
+  // The migrated legacy profile keeps the old 80 kg start and 70 kg goal:
+  // down 2.6 kg, 7.4 kg to go.
+  await expect(page.getByText('-2.6 kg', { exact: true })).toBeVisible();
+  await expect(page.getByText('7.4 kg', { exact: true })).toBeVisible();
 });

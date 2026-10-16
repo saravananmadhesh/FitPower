@@ -51,7 +51,7 @@
     "subtitle": "Day {{day}} of {{total}}",
     "stats": {
       "currentWeight": "Current weight",
-      "kgLost": "kg lost",
+      "toGoal": "To goal",
       "streak": "Day streak",
       "thisWeek": "This week"
     },
@@ -73,7 +73,7 @@
     "today": {
       "title": "Today · {{date}}",
       "rest": "Steps day",
-      "restDescription": "No lifting today — aim for 7,000–10,000 steps. A 30–45 min walk keeps the deficit going, helps recovery, and is easy on the knees.",
+      "restDescription": "No lifting today. Aim for 7,000–10,000 steps: a 30–45 min walk helps recovery and keeps you moving toward your goal.",
       "walkLogged": "Walk logged",
       "logWalk": "Log today's walk",
       "exerciseCount_one": "{{count}} exercise",
@@ -103,6 +103,11 @@
       "missed_other": "{{count}} missed sessions.",
       "todayIsTrainingDay": "Today's a training day, knock it out to get back on track.",
       "fitInMakeup": "Fit in a make-up session today if you can."
+    },
+    "homeKit": {
+      "title": "Train at home",
+      "body": "All you need is a pair of dumbbells and a resistance band. Every exercise in the gallery uses one of them, or just your body weight.",
+      "action": "Browse exercises"
     }
   },
   "workout": {
@@ -115,7 +120,7 @@
     "markCompleteSuccess": "Nice work — today is marked complete.",
     "kneeCare": {
       "title": "Knee care",
-      "body": "Keep knees tracking over toes, no bouncing, pain-free range only. Any sharp knee pain — tap swap on that exercise for a gentler alternative. Ice 10 min after if achy."
+      "body": "Keep your knees tracking over your toes, no bouncing, and stay in a pain-free range. If your knee gives sharp pain, tap swap for a gentler alternative. Ice for 10 minutes afterwards if it aches."
     },
     "timer": {
       "readyLabel": "Ready",
@@ -160,10 +165,14 @@
         "right": "Perfect zone. Repeat, and bump the load once it starts feeling easy.",
         "hard": "Keep the same weight next time and nail your form; it'll feel easier soon."
       }
+    },
+    "formCare": {
+      "title": "Form first",
+      "body": "Move with control, stay in a pain-free range and leave a rep or two in reserve. If anything hurts sharply, stop that exercise and tap swap for an alternative."
     }
   },
   "gallery": {
-    "description": "Every dumbbell and resistance-band exercise, rated for muscle building.",
+    "description": "Every dumbbell, resistance-band and body-weight exercise, rated for muscle building.",
     "loadError": "The exercise library couldn't be loaded.",
     "albums": {
       "arms": "Arms",
@@ -309,7 +318,7 @@
     }
   },
   "progress": {
-    "description": "Log your weight and body measurements to track fat-loss progress.",
+    "description": "Log your weight and body measurements to track progress toward your goal.",
     "weight": {
       "logTitle": "Log weight",
       "date": "Date",
@@ -328,7 +337,7 @@
     },
     "measure": {
       "title": "Body measurements",
-      "hint": "Waist is the best single fat-loss signal — it often drops before the scale does.",
+      "hint": "Waist size is often the clearest sign of fat loss, and it can move before the scale does.",
       "date": "Date",
       "waist": "Waist (cm)",
       "chest": "Chest (cm) — optional",
@@ -402,7 +411,7 @@
     }
   },
   "settings": {
-    "description": "Theme, density, program start date, backups, and data reset.",
+    "description": "Your profile, theme, program start date, backups and data reset.",
     "appearance": {
       "title": "Appearance",
       "lightTheme": "Light theme",
@@ -414,7 +423,7 @@
     },
     "backup": {
       "title": "Backup",
-      "description": "Everything is saved in this browser on your device — nothing leaves your machine. Back it up here, or restore a backup (including one exported from the original v1 tracker).",
+      "description": "There is no account and no server. Everything is saved in this browser, at this exact address. A different browser, device or port starts empty, so use a backup to move your data or keep it safe. You can also restore a backup from the original v1 tracker.",
       "export": "Export backup (JSON)",
       "import": "Import backup",
       "exportedToast": "Backup exported",
@@ -443,6 +452,32 @@
       "reconnect": "Reconnect",
       "reconnectedToast": "Reconnected",
       "permissionDeniedToast": "Permission was denied"
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "Used for your nutrition targets and plan. Saved only in this browser.",
+      "name": "Name",
+      "namePlaceholder": "Optional",
+      "birthDate": "Date of birth",
+      "sex": "Sex (for the calorie formula)",
+      "sexOptions": {
+        "male": "Male",
+        "female": "Female",
+        "unspecified": "Prefer not to say"
+      },
+      "height": "Height (cm)",
+      "goalWeight": "Goal weight (kg)",
+      "save": "Save profile",
+      "savedToast": "Profile saved",
+      "saveError": "Couldn't save your profile",
+      "errors": {
+        "birthDate": "Enter a valid date of birth",
+        "height": "Enter a height between 100 and 250 cm",
+        "goalWeight": "Enter a goal weight between 30 and 300 kg"
+      },
+      "retakeTitle": "Start over with a new plan",
+      "retakeDescription": "Go through setup again to update your goals, experience, injuries and schedule. Your logs are kept.",
+      "retake": "Redo setup"
     }
   },
   "notFound": {
@@ -499,5 +534,9 @@
         "If pain worsens or persists beyond a couple of weeks, see a physiotherapist."
       ]
     }
+  },
+  "shell": {
+    "disclaimer": "FitPower gives general fitness guidance, not medical advice. Check with a doctor before starting a new program, especially if you have an injury or a health condition.",
+    "localOnly": "Your data stays in this browser."
   }
 }

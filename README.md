@@ -8,7 +8,8 @@ project bible and [DESIGN.md](./DESIGN.md) for the design system.
 
 ```bash
 npm install         # install dependencies
-npm run dev          # start the dev server
+npm start           # build and serve the app on http://localhost:5173 (your data lives here)
+npm run dev          # dev server on http://localhost:5174 (separate, empty data)
 npm run build         # typecheck + production build
 npm run preview       # preview the production build
 npm run typecheck      # tsc project references, no emit

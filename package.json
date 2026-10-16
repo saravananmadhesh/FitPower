@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "vite build && vite preview",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
@@ -95,5 +96,7 @@
     "*.{json,css,md}": [
       "prettier --write"
     ]
-  }
+  },
+  "description": "Self-hosted, offline-first fitness and home-workout tracker. No account, no server; your data stays in your browser.",
+  "license": "MIT"
 }

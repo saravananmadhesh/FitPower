@@ -4,4 +4,6 @@
  */
 export const FEATURES = {
   coach: false,
+  /** The first-run wizard (W1). Until it lands, /onboarding is a placeholder that resets the profile. */
+  onboardingWizard: false,
 } as const;
