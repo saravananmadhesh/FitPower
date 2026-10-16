@@ -1,3 +1,7 @@
+> **Archived.** This is the prompt that built the original single-user v2 dashboard. It describes one
+> person's program and an older 5-day split, and is kept only as history. Current guidance lives in
+> `CLAUDE.md` and `DESIGN.md` at the repository root.
+
 # Agent prompt — build FitPower Dashboard (v2, enterprise UI/UX)
 
 Copy the box below into your VS Code coding agent (Claude Code, Cline, Cursor…). Run it from the `fitpower-dashboard/` folder so it can read `CLAUDE.md`, `DESIGN.md`, and v1 at `../fitness-tracker.html`.

@@ -19,7 +19,7 @@ export default defineConfig({
       manifest: {
         name: 'FitPower Dashboard',
         short_name: 'FitPower',
-        description: 'Personal fat-loss and home-workout tracker — runs fully offline.',
+        description: 'Self-hosted fitness and home-workout tracker. Runs fully offline.',
         theme_color: '#0E0F13',
         background_color: '#0E0F13',
         display: 'standalone',
@@ -41,15 +41,20 @@ export default defineConfig({
       '@': path.resolve(dirname, './src'),
     },
   },
+  // App data (localStorage/IndexedDB) is tied to the exact origin, so both
+  // ports are strict: a busy port fails loudly instead of Vite silently moving
+  // to another one, which would be the same app with none of your saved data.
+  //
+  // `npm start` (build + preview) is how people run the app day to day, so it
+  // gets 5173, the port the old dev-server launcher used: existing data keeps
+  // working. The dev server moves to 5174 so development never shares an
+  // origin (or a service worker) with the copy that holds real data.
   server: {
-    // App data (localStorage/IndexedDB) is tied to the exact origin. Without
-    // this, a busy port 5173 would make Vite silently pick 5174+ instead —
-    // same app, but a different origin with none of your saved data.
-    port: 5173,
+    port: 5174,
     strictPort: true,
   },
   preview: {
-    port: 4173,
+    port: 5173,
     strictPort: true,
   },
   test: {
