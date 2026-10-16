@@ -127,3 +127,53 @@ test('connect a key, get interviewed, accept the AI plan, then remove the key', 
   await expect(page.getByText('AI not connected')).toBeVisible();
   expect(await page.evaluate((k) => localStorage.getItem(k), AI_KEY_STORAGE_KEY)).toBeNull();
 });
+
+test('reset everything also removes the AI key and the chat history', async ({ page }) => {
+  await page.addInitScript(
+    ({ keyName, key }) => {
+      // Seed once per tab, so a reload after the reset doesn't put them back.
+      if (sessionStorage.getItem('e2e-coach-seeded')) return;
+      sessionStorage.setItem('e2e-coach-seeded', '1');
+      localStorage.setItem(
+        keyName,
+        JSON.stringify({
+          provider: 'anthropic',
+          apiKey: key,
+          model: 'claude-sonnet-5-5',
+          baseUrl: 'https://api.anthropic.com',
+          savedAt: new Date().toISOString(),
+        }),
+      );
+      localStorage.setItem(
+        'fitpower-coach-chat',
+        JSON.stringify({
+          state: {
+            messages: [{ role: 'user', content: [{ type: 'text', text: 'hi' }] }],
+            proposals: {},
+            pendingNotes: [],
+          },
+          version: 1,
+        }),
+      );
+    },
+    { keyName: AI_KEY_STORAGE_KEY, key: FAKE_KEY },
+  );
+  await page.goto('/settings');
+  await expect(page.getByText(/Connected to Anthropic/)).toBeVisible();
+
+  page.once('dialog', (dialog) => void dialog.accept());
+  await page.getByRole('button', { name: 'Reset everything' }).click();
+  await expect(page.getByText('All data has been reset')).toBeVisible();
+
+  const left = await page.evaluate(
+    (keyName) => ({
+      key: localStorage.getItem(keyName),
+      chat: JSON.parse(localStorage.getItem('fitpower-coach-chat') ?? '{}') as {
+        state?: { messages?: unknown[] };
+      },
+    }),
+    AI_KEY_STORAGE_KEY,
+  );
+  expect(left.key).toBeNull();
+  expect(left.chat.state?.messages ?? []).toEqual([]);
+});

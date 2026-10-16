@@ -13,11 +13,12 @@ import {
   checkProfilePatch,
   EDITABLE_PROFILE_FIELDS,
   type AiPlanDraft,
+  type PlanFitWarning,
 } from './validatePlan';
 
 /** A change the coach wants to make. Nothing is saved until the user accepts it in the UI. */
 export type Proposal =
-  | { kind: 'plan'; plan: TrainingPlan }
+  | { kind: 'plan'; plan: TrainingPlan; fit?: PlanFitWarning[] }
   | { kind: 'profile'; profile: UserProfile; previous: UserProfile; changed: string[] };
 
 export interface ToolContext {
@@ -418,7 +419,7 @@ export function runTool(
             // For the model to weigh; the app shows only the notes the model writes.
             cautions: check.warnings,
           }),
-          proposal: { kind: 'plan', plan: check.plan },
+          proposal: { kind: 'plan', plan: check.plan, fit: check.fit },
         };
       }
       case 'update_profile': {

@@ -208,6 +208,7 @@ function CoachChat({ config, data, catalog, onManageKey }: CoachChatProps) {
       return (
         <PlanProposalCard
           plan={stored.proposal.plan}
+          fit={stored.proposal.fit}
           status={stored.status}
           saving={savePlan.isPending}
           onAccept={() => acceptPlan(toolUseId, stored)}

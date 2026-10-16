@@ -75,7 +75,10 @@ describe('checkPlanDraft', () => {
       ctx,
     );
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.warnings.join('\n')).toMatch(/5 days a week.*has 3/);
+    if (result.ok) {
+      expect(result.warnings.join('\n')).toMatch(/5 days a week.*has 3/);
+      expect(result.fit).toEqual([{ code: 'too-many-days', days: 5, max: 3 }]);
+    }
   });
 
   it('blocks shoulder- and wrist-risk moves for those injuries (shared plan rules)', () => {

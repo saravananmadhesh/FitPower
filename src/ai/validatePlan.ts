@@ -1,6 +1,12 @@
 import type { Catalog, CatalogExercise } from '@/domain/catalog';
 import { trainingPlanSchema, type TrainingPlan } from '@/domain/plan';
-import { checkPlan, needsKneeCaution, ruleContextFor } from '@/domain/planRules';
+import {
+  checkPlan,
+  estimateSessionMinutes,
+  needsKneeCaution,
+  ruleContextFor,
+  trainingDaysPerWeek,
+} from '@/domain/planRules';
 import { userProfileSchema, type UserProfile } from '@/domain/profile';
 
 /** What the model sends to `propose_plan`. The harness fills in the rest. */
@@ -15,8 +21,14 @@ export interface AiPlanDraft {
   notes?: unknown;
 }
 
+/** A poor fit with the user's schedule, shown on the plan preview so they can ask for a change. */
+export type PlanFitWarning =
+  | { code: 'too-many-days'; days: number; max: number }
+  | { code: 'session-too-long'; session: string; minutes: number; max: number };
+
 export type PlanCheck =
-  { ok: true; plan: TrainingPlan; warnings: string[] } | { ok: false; errors: string[] };
+  | { ok: true; plan: TrainingPlan; warnings: string[]; fit: PlanFitWarning[] }
+  | { ok: false; errors: string[] };
 
 interface DraftExercise {
   catalogId?: unknown;
@@ -93,10 +105,25 @@ export function checkPlanDraft(
   // bench, knee/back/shoulder/wrist, days per week, session length).
   const plan = parsed.data;
   const ruleCtx = ruleContextFor(ctx.profile);
+  const fit: PlanFitWarning[] = [];
   for (const issue of checkPlan(plan, ctx.profile, ctx.catalog.exercises)) {
     const line = `${issuePath(issue.path) || 'plan'}: ${issue.message}`;
     if (issue.severity === 'error') errors.push(line);
     else warnings.push(line);
+    if (issue.code === 'too-many-days') {
+      fit.push({ code: issue.code, days: trainingDaysPerWeek(plan), max: ctx.profile.daysPerWeek });
+    } else if (issue.code === 'session-too-long' && typeof issue.path[1] === 'number') {
+      const session = plan.sessions[issue.path[1]];
+      if (session) {
+        const minutes = Math.max(...plan.phases.map((p) => estimateSessionMinutes(session, p)));
+        fit.push({
+          code: issue.code,
+          session: session.name,
+          minutes,
+          max: ctx.profile.minutesPerSession,
+        });
+      }
+    }
   }
   for (const session of plan.sessions) {
     for (const ex of session.exercises) {
@@ -107,7 +134,7 @@ export function checkPlanDraft(
     }
   }
 
-  return errors.length > 0 ? { ok: false, errors } : { ok: true, plan, warnings };
+  return errors.length > 0 ? { ok: false, errors } : { ok: true, plan, warnings, fit };
 }
 
 /** Profile fields the coach may propose to change (always confirmed by the user). */

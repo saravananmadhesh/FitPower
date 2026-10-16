@@ -1,10 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { CheckCircle2, ClipboardList, Footprints, Moon } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ClipboardList, Footprints, Moon } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { WEEKDAYS, isTrainingSlot, type TrainingPlan } from '@/domain/plan';
 import { parseISO } from '@/domain/dates';
 import type { ProposalStatus } from '@/ai/chatStore';
+import type { PlanFitWarning } from '@/ai/validatePlan';
 
 /** 2024-01-01 was a Monday; used only to get localized weekday names. */
 const MONDAY = new Date(2024, 0, 1);
@@ -17,6 +18,8 @@ function weekdayLabel(index: number, locale: string): string {
 
 interface PlanProposalCardProps {
   plan: TrainingPlan;
+  /** Schedule mismatches found by the shared plan rules (more days or longer sessions than the user has). */
+  fit?: PlanFitWarning[];
   status: ProposalStatus;
   saving?: boolean;
   onAccept: () => void;
@@ -25,6 +28,7 @@ interface PlanProposalCardProps {
 
 export function PlanProposalCard({
   plan,
+  fit = [],
   status,
   saving,
   onAccept,
@@ -68,6 +72,28 @@ export function PlanProposalCard({
           phases: plan.phases.length,
         })}
       </p>
+
+      {fit.length > 0 && (
+        <div className="mt-3 rounded-lg border border-warning/40 bg-card-2 px-3 py-2">
+          <h4 className="flex items-center gap-1.5 text-body-sm font-medium text-text">
+            <AlertTriangle className="h-4 w-4 text-warning" aria-hidden="true" />
+            {t('proposal.fitTitle')}
+          </h4>
+          <ul className="mt-1 list-disc space-y-0.5 pl-5 text-body-sm text-text-muted">
+            {fit.map((w, i) => (
+              <li key={i}>
+                {w.code === 'too-many-days'
+                  ? t('proposal.fitDays', { days: w.days, max: w.max })
+                  : t('proposal.fitLength', {
+                      session: w.session,
+                      minutes: w.minutes,
+                      max: w.max,
+                    })}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <h4 className="mt-4 text-body-sm font-medium text-text">{t('proposal.weekly')}</h4>
       <ul className="mt-2 grid grid-cols-7 gap-1 text-center">
