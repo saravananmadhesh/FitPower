@@ -4,6 +4,6 @@
  */
 export const FEATURES = {
   coach: true,
-  /** The first-run wizard (W1). Until it lands, /onboarding is a placeholder that resets the profile. */
-  onboardingWizard: false,
+  /** The first-run wizard (W1); also shows "Redo setup" in Settings. */
+  onboardingWizard: true,
 } as const;

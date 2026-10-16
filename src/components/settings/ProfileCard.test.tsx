@@ -68,9 +68,9 @@ describe('ProfileCard', () => {
     expect(birth).toHaveAttribute('aria-invalid', 'true');
   });
 
-  it('hides Redo setup until the onboarding wizard exists', () => {
+  it('offers Redo setup', () => {
     renderCard();
-    expect(screen.queryByRole('button', { name: 'Redo setup' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Redo setup' })).toBeInTheDocument();
   });
 
   it('has no axe violations', async () => {
