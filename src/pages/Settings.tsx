@@ -102,7 +102,7 @@ function SettingsContent({ data }: { data: ReadyAppData }) {
 
       <Card>
         <h3 className="mb-4 text-h3 text-text">{t('settings.appearance.title')}</h3>
-        <div className="space-y-4">
+        <div className="flex flex-col items-start gap-4">
           <Switch
             checked={theme === 'light'}
             onCheckedChange={toggleTheme}
