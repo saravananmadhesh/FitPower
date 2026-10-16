@@ -58,6 +58,9 @@ function WorkoutContent({ data }: { data: ReadyAppData }) {
   const todayKey = todayISO();
   const { plan, profile } = data;
   const kneeInjury = hasInjury(profile, 'knee');
+  // Generated and AI plans write session notes for this person's own injuries
+  // and health; the legacy plan's notes were written for a knee injury.
+  const showSessionNote = plan.source !== 'legacy' || kneeInjury;
   const substitutions = plan.substitutions;
   // Defaults to today's session; on walk/rest days, the plan's first session.
   const [selectedId, setSelectedId] = useState<string>(
@@ -215,7 +218,8 @@ function WorkoutContent({ data }: { data: ReadyAppData }) {
             {kneeInjury ? t('workout.kneeCare.title') : t('workout.formCare.title')}
           </p>
           <p className="mt-1 text-body-sm text-text-muted">
-            {session.note ?? (kneeInjury ? t('workout.kneeCare.body') : t('workout.formCare.body'))}
+            {(showSessionNote ? session.note : undefined) ??
+              (kneeInjury ? t('workout.kneeCare.body') : t('workout.formCare.body'))}
           </p>
         </div>
 
