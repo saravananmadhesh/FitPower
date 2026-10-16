@@ -100,6 +100,51 @@ describe('generatePlan', () => {
     }
   });
 
+  it('never leaves a session short, for every kit, injury, level and days-per-week mix', () => {
+    const kits: UserProfile['equipment'][] = [
+      ['bodyweight'],
+      ['band'],
+      ['dumbbell'],
+      ['dumbbell', 'band'],
+      ['dumbbell', 'band', 'bodyweight'],
+    ];
+    const injurySets: UserProfile['injuries'][] = [
+      [],
+      [{ area: 'knee', note: '' }],
+      [
+        { area: 'back', note: '' },
+        { area: 'shoulder', note: '' },
+        { area: 'wrist', note: '' },
+        { area: 'knee', note: '' },
+      ],
+    ];
+    for (const level of PLAN_LEVELS)
+      for (const equipment of kits)
+        for (const injuries of injurySets)
+          for (let daysPerWeek = 1; daysPerWeek <= 7; daysPerWeek++)
+            for (const minutesPerSession of [10, 20, 45]) {
+              const p = profile({ equipment, injuries, daysPerWeek, minutesPerSession });
+              const plan = generatePlan(p, level, START, { now: 'test' });
+              const label = JSON.stringify({ level, equipment, injuries, daysPerWeek });
+              expect(trainingPlanSchema.safeParse(plan).success, label).toBe(true);
+              expect(
+                checkPlan(plan, p, catalog).filter((i) => i.severity === 'error'),
+                label,
+              ).toEqual([]);
+              const minMoves = minutesPerSession < 30 ? 3 : 4;
+              for (const s of plan.sessions) {
+                expect(s.exercises.length, `${label} ${s.id}`).toBeGreaterThanOrEqual(minMoves);
+              }
+              // 20 min and up fit the time budget (10 min can't fit warm-up + 3 moves).
+              if (minutesPerSession >= 20) {
+                expect(
+                  checkPlan(plan, p, catalog).filter((i) => i.code === 'session-too-long'),
+                  `${label} ${minutesPerSession}min`,
+                ).toEqual([]);
+              }
+            }
+  });
+
   it('maps days per week to a split, capped at 6', () => {
     const days = (n: number) =>
       trainingDaysPerWeek(generatePlan(profile({ daysPerWeek: n }), 'easy', START));
@@ -208,9 +253,10 @@ describe('planLengthFor', () => {
     expect(planLengthFor({ targetDate: '2026-11-21' }, START)).toBe(90);
   });
 
-  it('clamps to 28–365 and defaults to 180 for a past target', () => {
+  it('clamps to 28–730 and defaults to 180 for a past target', () => {
     expect(planLengthFor({ targetDate: '2026-08-30' }, START)).toBe(28);
-    expect(planLengthFor({ targetDate: '2028-08-24' }, START)).toBe(365);
+    expect(planLengthFor({ targetDate: '2027-08-23' }, START)).toBe(365);
+    expect(planLengthFor({ targetDate: '2029-08-24' }, START)).toBe(730);
     expect(planLengthFor({ targetDate: '2026-08-01' }, START)).toBe(180);
   });
 });

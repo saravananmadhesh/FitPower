@@ -16,7 +16,14 @@ import { EASY } from './plans/easy';
 import { HARD } from './plans/hard';
 import { INTERMEDIATE } from './plans/intermediate';
 import type { LevelConfig, PhaseTemplate } from './plans/level';
-import { PATTERNS, SPLITS, type MovementPattern, type SessionTemplate } from './plans/slots';
+import {
+  FILLER_PATTERNS,
+  PATTERNS,
+  SPLITS,
+  type MovementPattern,
+  type PatternId,
+  type SessionTemplate,
+} from './plans/slots';
 
 /**
  * Built-in plan generator: Easy, Intermediate and Hard plans built from the
@@ -34,12 +41,16 @@ export const LEVELS: Record<PlanLevel, LevelConfig> = {
 
 export const DEFAULT_PLAN_DAYS = 180;
 export const MIN_PLAN_DAYS = 28;
-export const MAX_PLAN_DAYS = 365;
+/** The schema's limit: two years. */
+export const MAX_PLAN_DAYS = 730;
 const DAYS_PER_PHASE = 30;
 /** A session may run this much over the user's minutes before moves are dropped. */
 const TIME_TOLERANCE = 1.1;
-/** Never trim a session below this many exercises. */
+/** Sessions are topped up to this many exercises and not trimmed below it… */
 const MIN_EXERCISES = 4;
+/** …except when the user has under 30 minutes. */
+const MIN_EXERCISES_SHORT = 3;
+const SHORT_SESSION_MINUTES = 30;
 const LEVEL_INDEX: Record<PlanLevel, 0 | 1 | 2> = { easy: 0, intermediate: 1, hard: 2 };
 const DIFFICULTY_RANK = { beginner: 0, intermediate: 1, advanced: 2 } as const;
 
@@ -55,7 +66,7 @@ export function levelOfPlan(plan: Pick<TrainingPlan, 'source'>): PlanLevel | nul
 
 /**
  * Plan length in days: start date through the profile's target date, clamped
- * to 28–365. A target date on or before the start gives the default 180.
+ * to 28–730. A target date on or before the start gives the default 180.
  */
 export function planLengthFor(profile: Pick<UserProfile, 'targetDate'>, startDate: string): number {
   const days =
@@ -173,12 +184,11 @@ function buildSession(
   const used = new Set<string>();
   const picks: { exercise: PlanExercise; finisher: boolean; alternatives: string[] }[] = [];
 
-  for (const slot of template.slots) {
-    if (slot.levels && !slot.levels.includes(config.level)) continue;
-    const pattern: MovementPattern = PATTERNS[slot.pattern];
+  const addPick = (patternId: PatternId): void => {
+    const pattern: MovementPattern = PATTERNS[patternId];
     const options = allowedCandidates(pattern, byId, ctx, config).filter((ex) => !used.has(ex.id));
     const choice = options[0];
-    if (!choice) continue;
+    if (!choice) return;
     used.add(choice.id);
 
     const exercise: PlanExercise = {
@@ -193,6 +203,16 @@ function buildSession(
       finisher: pattern.finisher === true,
       alternatives: options.slice(1, 3).map(displayName),
     });
+  };
+
+  for (const slot of template.slots) {
+    if (!slot.levels || slot.levels.includes(config.level)) addPick(slot.pattern);
+  }
+  // Too little kit for this session's patterns (e.g. bodyweight only on a pull
+  // day): top up with bodyweight moves that are always available.
+  for (const patternId of FILLER_PATTERNS) {
+    if (picks.length >= MIN_EXERCISES) break;
+    addPick(patternId);
   }
 
   // Drop moves from the end until the session fits the user's time.
@@ -206,7 +226,8 @@ function buildSession(
     );
   };
   let kept = picks;
-  while (kept.length > MIN_EXERCISES && longestMinutes(withFinisherRest(kept), phases) > budget) {
+  const minKept = minutesPerSession < SHORT_SESSION_MINUTES ? MIN_EXERCISES_SHORT : MIN_EXERCISES;
+  while (kept.length > minKept && longestMinutes(withFinisherRest(kept), phases) > budget) {
     kept = kept.slice(0, -1);
   }
 
@@ -284,7 +305,7 @@ export function generatePlan(
     MAX_PLAN_DAYS,
     Math.max(MIN_PLAN_DAYS, options.totalDays ?? planLengthFor(profile, startDate)),
   );
-  const phases = phasesFor(config, totalDays);
+  let phases = phasesFor(config, totalDays);
 
   const daysPerWeek = Math.min(6, Math.max(1, profile.daysPerWeek)) as keyof typeof SPLITS;
   const split = SPLITS[daysPerWeek];
@@ -297,6 +318,16 @@ export function generatePlan(
     }
     return built.session;
   });
+
+  // Still over time with the fewest moves: take a set off every phase until it fits.
+  const budget = profile.minutesPerSession * TIME_TOLERANCE;
+  const longest = (list: PlanPhase[]): number =>
+    Math.max(...sessions.flatMap((s) => list.map((p) => estimateSessionMinutes(s, p))));
+  while (longest(phases) > budget) {
+    const maxRounds = Math.max(...phases.map((p) => p.rounds));
+    if (maxRounds <= 1) break;
+    phases = phases.map((p) => ({ ...p, rounds: Math.min(p.rounds, maxRounds - 1) }));
+  }
 
   const weekly = Object.fromEntries(
     WEEKDAYS.map((d) => [d, d === 'sun' ? REST_DAY : WALK_DAY]),

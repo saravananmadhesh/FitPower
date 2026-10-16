@@ -251,6 +251,11 @@ export const PATTERNS = {
     tier: 'isolation',
     finisher: true,
   },
+  backExtension: {
+    candidates: ['Superman', 'Bird_Dog'],
+    reps: ['8 reps', '10 reps', '12 reps'],
+    tier: 'core',
+  },
   plank: {
     candidates: ['Forearm_Plank', 'Dead_Bug', 'Bird_Dog'],
     reps: ['25 sec', '40 sec', '45 sec'],
@@ -295,6 +300,21 @@ export const PATTERNS = {
 } as const satisfies Record<string, MovementPattern>;
 
 export type PatternId = keyof typeof PATTERNS;
+
+/**
+ * Always-available bodyweight patterns, used to top up a session when the
+ * user's kit can't fill its own patterns (e.g. a pull day with no equipment).
+ */
+export const FILLER_PATTERNS: readonly PatternId[] = [
+  'backExtension',
+  'plank',
+  'deadBug',
+  'glute',
+  'sidePlank',
+  'abs',
+  'conditioningAlt',
+  'legHold',
+];
 
 export interface SlotTemplate {
   pattern: PatternId;
