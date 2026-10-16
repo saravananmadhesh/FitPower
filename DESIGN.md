@@ -92,7 +92,7 @@ Optional "comfortable / compact" toggle (Settings) that scales spacing + row hei
 ```
 
 - **Sidebar**: wordmark; nav items (icon+label, active = accent left-bar + `accent-soft` bg + `text`); footer = profile chip + theme toggle + collapse button. Icon-rail shows tooltips.
-- **Topbar** (sticky, 64): page title or "Good morning, Sarwan"; right cluster = today's date, global search / command palette (⌘K) trigger, theme switch, streak/avatar badge.
+- **Topbar** (sticky, 64): page title or a greeting with the profile name ("Good morning, Alex"); right cluster = today's date, global search / command palette (⌘K) trigger, theme switch, streak/avatar badge.
 - **Command palette (⌘K)**: quick nav + actions (start workout, log weight, add photo). Enterprise touch, fully keyboard driven.
 
 ## 4. Component states (define ALL of these)

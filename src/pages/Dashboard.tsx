@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { CalendarCheck2, Flame, Scale, TrendingDown } from 'lucide-react';
+import { CalendarCheck2, Flame, Goal, Scale } from 'lucide-react';
 import { PageHeader } from '@/components/app/PageHeader';
 import { BackupBanner } from '@/components/app/BackupBanner';
 import { CatchUpBanner } from '@/components/app/CatchUpBanner';
@@ -10,6 +10,7 @@ import { StatCard } from '@/components/dashboard/StatCard';
 import { TodayWorkoutCard } from '@/components/dashboard/TodayWorkoutCard';
 import { ScheduleStrip } from '@/components/dashboard/ScheduleStrip';
 import { StreakWidget } from '@/components/dashboard/StreakWidget';
+import { HomeKitCard } from '@/components/dashboard/HomeKitCard';
 import { WeightTrendChart } from '@/components/charts/WeightTrendChart';
 import { RingStat } from '@/components/charts/RingStat';
 import { ActivityChart } from '@/components/charts/ActivityChart';
@@ -107,9 +108,9 @@ export default function Dashboard() {
           }}
         />
         <StatCard
-          icon={TrendingDown}
+          icon={Goal}
           label={t('dashboard.stats.kgLost')}
-          value={`${Math.max(0, startWeight - weight).toFixed(1)} kg`}
+          value={`${Math.abs(weight - profile.goalWeightKg).toFixed(1)} kg`}
         />
         <StatCard
           icon={Flame}
@@ -184,6 +185,7 @@ export default function Dashboard() {
             />
           </Card>
           <StreakWidget streak={streak} />
+          <HomeKitCard />
         </div>
       </div>
     </div>

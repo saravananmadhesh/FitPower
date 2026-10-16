@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SEXES } from './profile';
 
 /** v1 parity: `if(!v||v<30||v>250) alert("Enter a valid weight in kg")`. */
 export const weightFormSchema = z.object({
@@ -47,3 +48,13 @@ export const stepsFormSchema = z.object({
   steps: z.number({ error: 'Enter a number' }).min(0, 'Enter a positive number'),
 });
 export type StepsFormValues = z.infer<typeof stepsFormSchema>;
+
+/** The profile fields editable in Settings; everything else comes from onboarding. */
+export const profileFormSchema = z.object({
+  name: z.string().trim().max(60),
+  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'birthDate'),
+  sex: z.enum(SEXES),
+  heightCm: z.number({ error: 'height' }).min(100, 'height').max(250, 'height'),
+  goalWeightKg: z.number({ error: 'goalWeight' }).min(30, 'goalWeight').max(300, 'goalWeight'),
+});
+export type ProfileFormValues = z.infer<typeof profileFormSchema>;

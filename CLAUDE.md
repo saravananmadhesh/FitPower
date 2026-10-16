@@ -1,16 +1,29 @@
-# CLAUDE.md — FitPower Dashboard (180-Day Fat Loss Tracker v2)
+# CLAUDE.md — FitPower
 
-Project bible for the coding agent. Read this fully before writing code. Also read `DESIGN.md` (visual spec) and `../fitness-tracker.html` (the working v1 — the source of truth for all logic and data).
+Project bible for the coding agent. Read this fully before writing code. Also read `DESIGN.md` (visual spec). The original single-user v1 (`fitness-tracker.html`, not in this repo) is the historical source of the core training, nutrition and adherence logic described below.
 
 ## What we're building
 
-A personal, single-user fat-loss and home-workout tracker for **Sarwan** (166 cm, start 80 kg, goal **70 ± 2 kg**, waist goal 90–95 cm, beginner, home equipment = dumbbells + resistance bands, mild left-knee pain → knee-friendly programming). v1 is a single HTML file; v2 re-implements the same features as a polished **React SaaS dashboard** (see `DESIGN.md`). No behavioural regressions — every v1 feature must survive.
+A **self-hosted, offline-first fitness and home-workout tracker** for anyone. It started as one person's 180-day fat-loss tracker and is being generalised for a public GitHub release.
+
+- People clone the repo and run it on their own machine (`npm install`, `npm start`, or the `start-app` launchers). There is **no hosted service, no account and no login**.
+- First run asks for a profile (goals, body, experience, injuries, health, schedule, equipment) and builds a plan up to the user's target date. A built-in Easy / Intermediate / Hard plan works with no AI; an optional bring-your-own-key AI coach can design and adjust the plan.
+- Home equipment is the default promise: **a pair of dumbbells and a resistance band**, plus body weight. The Workout Gallery and its YouTube / how-to links stay.
 
 **Non-negotiables**
 
-- Works **fully offline** (no runtime CDN/API calls). Bundle everything.
-- All data stays **local** on the user's machine (localStorage + IndexedDB). No backend, no telemetry.
-- Preserve the training logic, phase progression, nutrition math, and knee-safe substitutions exactly as in v1.
+- Works **fully offline** (no runtime CDN/API calls). Bundle everything. The only network traffic allowed is the AI coach calling the provider the user chose, with the user's own key, and only while the user is using it.
+- All data stays **local** in the user's browser (localStorage + IndexedDB). No backend, no telemetry. The AI key is never written to `AppData` or backups.
+- **No personal copy.** Never hard-code one person's name, body stats, goals or injuries. Read them from the profile; show injury-specific guidance (e.g. knee care) only when the profile lists that injury.
+- Keep the training logic, phase progression, nutrition math and substitutions behaving as in v1 for the legacy plan (unit tests prove it).
+- General fitness guidance only, never medical advice; the app shell carries a health disclaimer.
+
+## Self-hosting
+
+- `npm start` = `vite build && vite preview` on **http://localhost:5173** (strict port). This is the address that holds a user's data, so it must not change; the old Windows launcher also used 5173, so existing installs keep their data.
+- `npm run dev` runs on **5174** so development never shares an origin or service worker with the copy holding real data.
+- `start-app.bat` (Windows) and `start-app.sh` (macOS/Linux) check for Node, install on first run, run `npm start` and open the browser.
+- Data is tied to browser + origin (scheme, host, port). Another browser, device or port starts empty; Settings → Backup moves data between them.
 
 ## Scope: enterprise-grade UI/UX (frontend excellence), backend-ready
 
@@ -135,15 +148,15 @@ interface Photo {
 
 `AppData` also holds `profile?: UserProfile` (`domain/profile.ts`) and `plan?: TrainingPlan` (`domain/plan.ts`); pages read height, weights, goal, program length, sessions and phases from these, never from constants. Persist version 3: installs with data are migrated onto `legacyProfile` / `legacyPlan` (`domain/plans/legacy.ts`, the old 166 cm / 80 → 70 kg / 180-day values). With no profile or plan, `OnboardingGate` redirects to `/onboarding`. E2E specs seed one with `e2e/fixtures/seedProfile.ts`.
 
-## Business logic to port verbatim from v1 (`../fitness-tracker.html`)
+## Core logic (from v1; keep the behaviour)
 
-Do not redesign these — copy the behaviour:
+The program is now **data**, not code: a `TrainingPlan` (`domain/plan.ts`) holds the weekly slots, sessions, phases and substitutions, and `legacyPlan` reproduces the original program (3-day full-body A/B/C on Mon/Wed/Fri, walks on other days, 6 × 30-day phases). Don't redesign these behaviours:
 
-1. **Program** — `WARMUP`, `LIB` (sessions A–E), `PHASES` (6 × 30 days), `SPLIT`, `ALT` (knee-safe substitutions). `typeForDate(date)` maps weekday → A/B/C/D/E or R (Mon–Fri = A–E, Sat/Sun = rest). `phaseForDay(n)`.
+1. **Program** — `dayTypeFor(plan, date)` maps weekday → session id, `walk` or `rest`; `phaseFor(plan, n)`; `sessionFor(plan, date)`; substitutions come from `plan.substitutions`.
 2. **Timer** — warm-up → rounds (per current phase) of work/rest → cooldown; single-interval countdown; sound cues via one `AudioContext` armed on first gesture; honors exercise substitutions.
-3. **Nutrition** — Mifflin-St Jeor BMR, ×1.45 TDEE, −450 kcal target (round to 10), protein ≈ 1.8 g/kg, water 3 L, steps 8–10k. Recompute from latest logged weight.
+3. **Nutrition** — Mifflin-St Jeor BMR (sex and age from the profile), ×1.45 TDEE, −450 kcal target (round to 10), protein ≈ 1.8 g/kg, water 3 L, steps 8–10k. Recompute from latest logged weight. Goal-dependent targets are W2's to add.
 4. **Day numbering** — day 1 = `startDate` (default tomorrow); today can be day 0. Start date is user-editable in Settings.
-5. **Adherence** — `streakCount` (consecutive completed non-rest days; today not-yet-done doesn't break it), `weekStats` (x/5 this Mon–Sun), `missedCount`, `rollingAvg` (7-day trailing weight).
+5. **Adherence** — `streakCount` (consecutive completed non-rest days; today not-yet-done doesn't break it), `weekStats` (sessions done / planned this Mon–Sun), `missedCount`, `rollingAvg` (7-day trailing weight).
 6. **Photos** — downscale to ≤1000px JPEG q0.82; name `progress_YYYY-MM-DD(.n).jpg`; gallery chronological; first-vs-latest compare; per-photo download; delete.
 7. **Backup** — weekly reminder (≥7 days since `lastBackup`, snooze 3 days); export/import JSON of `AppData`.
 
@@ -226,7 +239,7 @@ Not in this phase, but the architecture must not fight it:
 - Keep the `Repository` seam clean so `apiRepository` can call a REST/GraphQL API with the same methods.
 - Model data so a `userId` and `updatedAt` can be added later for multi-device sync + conflict resolution (last-write-wins or per-field merge).
 - Isolate auth-touch points (a `useAuth` stub returning a single local user today).
-- Likely later stack (given the user's C#/.NET background): **ASP.NET Core Web API + EF Core + SQL Server + ASP.NET Identity/JWT**, with the React app as the client and offline-first sync. Do not build it yet; just don't block it.
+- A possible later stack: **ASP.NET Core Web API + EF Core + SQL Server + ASP.NET Identity/JWT**, with the React app as the client and offline-first sync. Do not build it yet; just don't block it.
 
 ## Acceptance criteria (definition of done)
 
@@ -240,14 +253,6 @@ Not in this phase, but the architecture must not fight it:
 8. **Architecture**: UI only talks to `queries`/`Repository`; `domain/` is pure; `apiRepository` stub compiles against the same interface (backend-ready).
 9. Storybook covers the component library with states; README documents scripts.
 
-## Suggested build order (milestone = working + reviewable; pause after each)
+## History
 
-1. **Foundation**: scaffold Vite+TS+Tailwind+ESLint/Prettier/Husky; tokens + dark/light; providers (Query, Theme, Toast, i18n, ErrorBoundary); app shell (Sidebar + Topbar + routing + ⌘K); Storybook + CI skeleton.
-2. **Domain + data**: port `domain/` (program, nutrition, dates, metrics, zod schema) with unit tests proving v1 parity; `Repository` interfaces + `localRepository` + `photosIdb`; zustand stores; TanStack Query hooks.
-3. **Dashboard**: StatCards, WeightTrendChart, RingStats, TodayWorkoutCard, ScheduleStrip, banners — wired via queries, with all UX states.
-4. **Workout**: circular timer (single-interval, armed audio), ExerciseRow with per-set logging + swap + how-to/video, RPE rating, mark complete.
-5. **Schedule / Progress / Nutrition**: 180-day grid, weight+measurements+charts, calorie/protein/water/steps + quick-add.
-6. **Photos**: IndexedDB gallery, compare, lightbox, download; catch-up + backup banners.
-7. **Settings & hardening**: theme/density, start date, export/import + v1 import, reset; a11y pass, Playwright E2E, PWA, Lighthouse ≥ 90, polish.
-
-Report what changed and how to run it after each milestone, then pause for review.
+v2 was built in seven milestones (foundation, domain + data, dashboard, workout, schedule/progress/nutrition, photos, settings + hardening). The prompt used for that is archived at `docs/archive/AGENT_PROMPT.md`; it describes the old single-user scope and an older 5-day split, so don't follow it.
