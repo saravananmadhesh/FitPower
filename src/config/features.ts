@@ -3,5 +3,5 @@
  * yet. Flip one on in the PR that delivers the feature.
  */
 export const FEATURES = {
-  coach: false,
+  coach: true,
 } as const;
