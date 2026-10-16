@@ -63,6 +63,16 @@ describe('targetsForProfile', () => {
       pro: 144,
     });
   });
+
+  it('sets the calorie target from the goal: deficit, surplus or maintenance', () => {
+    const base = legacyProfile('2026-01-05', '2026-10-16');
+    const kcal = (goalType: typeof base.goalType) =>
+      targetsForProfile({ ...base, goalType }, 80, '2026-10-16').kcal;
+    expect(kcal('fat-loss')).toBe(1990);
+    expect(kcal('muscle')).toBe(2690);
+    expect(kcal('fitness')).toBe(2440);
+    expect(kcal('maintain')).toBe(2440);
+  });
 });
 
 describe('currentWeight (v1 parity: latest logged weight by date, else fallback)', () => {

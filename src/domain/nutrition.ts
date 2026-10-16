@@ -22,6 +22,14 @@ export interface TargetInputs {
 export const DEFAULT_ACTIVITY_FACTOR = 1.45;
 export const DEFAULT_KCAL_DELTA = -450;
 
+/** Calorie target vs maintenance per goal: a moderate deficit, a lean surplus, or maintenance. */
+export const KCAL_DELTA_BY_GOAL: Record<UserProfile['goalType'], number> = {
+  'fat-loss': DEFAULT_KCAL_DELTA,
+  muscle: 250,
+  fitness: 0,
+  maintain: 0,
+};
+
 /** Mifflin-St Jeor sex constant; 'unspecified' uses the midpoint of the two. */
 const SEX_CONSTANT: Record<Sex, number> = { male: 5, female: -161, unspecified: -78 };
 
@@ -51,7 +59,7 @@ export function targets({
   return { kcal, pro, bmr: Math.round(bmr), tdee: Math.round(tdee) };
 }
 
-/** Targets for a profile at its current weight, with age derived for `today`. */
+/** Targets for a profile at its current weight, with age derived for `today` and the delta from its goal. */
 export function targetsForProfile(
   profile: UserProfile,
   weightKg: number,
@@ -62,5 +70,6 @@ export function targetsForProfile(
     heightCm: profile.heightCm,
     ageYears: ageOn(profile.birthDate, today),
     sex: profile.sex,
+    kcalDelta: KCAL_DELTA_BY_GOAL[profile.goalType],
   });
 }

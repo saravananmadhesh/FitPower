@@ -1,1 +1,140 @@
-{}
+{
+  "description": "Your active training plan: phases, weekly split, sessions and nutrition targets.",
+  "source": {
+    "builtin-easy": "Built-in · Easy",
+    "builtin-intermediate": "Built-in · Intermediate",
+    "builtin-hard": "Built-in · Hard",
+    "ai": "Designed by the AI coach",
+    "legacy": "Original program"
+  },
+  "active": {
+    "title": "Your plan",
+    "days": "{{days}} days · {{start}} to {{end}}",
+    "perWeek": "{{count}} training days a week",
+    "minutes": "About {{count}} min per session",
+    "kit": "Home kit",
+    "equipment": {
+      "dumbbell": "Dumbbells",
+      "band": "Resistance band",
+      "bodyweight": "Bodyweight"
+    }
+  },
+  "ai": {
+    "title": "AI coach not connected",
+    "body": "This plan was built from your profile with the app's built-in rules. Connect your own AI key and a coach can interview you, design a plan around your goals, and adjust it as you progress.",
+    "connect": "Connect AI",
+    "comingSoon": "The AI coach is coming in a later update. Built-in plans work fully offline."
+  },
+  "levels": {
+    "title": "Built-in plans",
+    "description": "Three ready-made plans built from your profile, with no AI or internet needed. Switching keeps all your logs and history.",
+    "easy": {
+      "name": "Easy",
+      "blurb": "New to training or coming back after a break. Fewer moves, 2–3 sets and longer rests."
+    },
+    "intermediate": {
+      "name": "Intermediate",
+      "blurb": "Some training experience. Compound lifts plus a finisher superset, 3 sets."
+    },
+    "hard": {
+      "name": "Hard",
+      "blurb": "Trained regularly for a year or more. Harder variations, 4 sets and shorter rests."
+    },
+    "recommended": "Recommended",
+    "current": "Current plan",
+    "use": "Use this plan",
+    "stats": {
+      "days_one": "{{count}} session a week",
+      "days_other": "{{count}} sessions a week",
+      "sets": "Up to {{count}} sets per move",
+      "moves": "{{min}}–{{max}} moves per session",
+      "movesSame": "{{count}} moves per session",
+      "minutes": "About {{count}} min"
+    },
+    "confirm": {
+      "title": "Switch to the {{level}} plan?",
+      "body": "Your weekly schedule and sessions change from today. Your start date, workout history, weights and photos stay as they are.",
+      "confirm": "Switch plan",
+      "cancel": "Cancel"
+    },
+    "switchedToast": "Switched to the {{level}} plan",
+    "error": "Couldn't save the plan. Please try again."
+  },
+  "recommend": {
+    "why": "Recommended because {{reasons}}.",
+    "reasons": {
+      "experience-beginner": "you're new to training",
+      "experience-intermediate": "you have some training experience",
+      "experience-advanced": "you've trained for a long time",
+      "low-health-rating": "you rated your health low",
+      "injury": "you have an injury",
+      "health-not-cleared": "a health condition isn't cleared by a doctor yet"
+    }
+  },
+  "goal": {
+    "title": "The goal, honestly",
+    "fat-loss": "Going from {{start}} kg to {{goal}} kg over {{days}} days is about {{rate}} kg a week.",
+    "fatLossPaceOk": "That's a safe pace you can keep up. The calorie deficit removes fat while protein and resistance training keep your muscle, so you end up leaner, not just lighter.",
+    "fatLossPaceFast": "That's faster than the 0.5–1 kg a week most people can sustain. Consider a later target date so you keep your muscle.",
+    "muscle": "Muscle builds slowly: about 0.25–0.5 kg a week at best. A small calorie surplus, enough protein and adding weight over time do the work.",
+    "fitness": "The goal is to get fitter and stronger. Eat at maintenance, train consistently, and let your logged sets show the progress.",
+    "maintain": "The goal is to keep your weight steady and stay strong. Eat at maintenance and keep showing up.",
+    "movesTitle": "What actually moves your goal",
+    "moves": [
+      "Consistency beats intensity: get every planned session done, week after week.",
+      "Log your sets so the weights climb over time.",
+      "Eat about 1.8 g of protein per kg of body weight every day.",
+      "Walk 7,000–10,000 steps a day, especially on non-training days."
+    ],
+    "homeKit": "Everything here works at home with a pair of dumbbells and a resistance band. Tap any exercise for a demo in the gallery or a YouTube video."
+  },
+  "phases": {
+    "title_one": "The plan in {{count}} phase",
+    "title_other": "The plan in {{count}} phases",
+    "phaseLabel": "Phase {{n}} · {{name}}",
+    "days": "Days {{days}}",
+    "current": "current",
+    "rounds": "{{rounds}} sets · about {{minutes}} min"
+  },
+  "split": {
+    "title": "Weekly split",
+    "walk": "Walk · 7–10k steps",
+    "rest": "Rest or an easy walk"
+  },
+  "sessions": {
+    "title": "Sessions",
+    "description": "Every move links to its demo in the gallery and a YouTube video.",
+    "video": "Video",
+    "videoLabel": "Watch {{name}} on YouTube",
+    "galleryLabel": "Open {{name}} in the gallery"
+  },
+  "nutrition": {
+    "title": "Nutrition targets",
+    "description": "Mifflin-St Jeor for {{height}} cm at your logged weight ({{weight}} kg), lightly active, {{adjust}}.",
+    "adjust": {
+      "fat-loss": "with a 450 kcal deficit",
+      "muscle": "with a 250 kcal surplus",
+      "fitness": "at maintenance",
+      "maintain": "at maintenance"
+    },
+    "bmr": "BMR",
+    "tdee": "Maintenance",
+    "target": "Daily target",
+    "protein": "Protein",
+    "water": "Water",
+    "goalHint": "Recalculated automatically when you log a new weight. Start {{start}} kg, goal {{goal}} kg."
+  },
+  "safety": {
+    "title": "Safety notes",
+    "kneeTitle": "Knee rules",
+    "knee": [
+      "Knees track over toes, never caving inward.",
+      "Only move through a pain-free range. Shallow is fine, especially on wall sits and squats.",
+      "No bouncing or jumping anywhere in the plan.",
+      "Sharp pain means stop that move, take the swap, and keep going.",
+      "Warm up every session (the timer includes it).",
+      "If pain gets worse or lasts more than a couple of weeks, see a physiotherapist."
+    ],
+    "disclaimer": "FitPower is not medical advice. If you have a health condition, check with a doctor before starting."
+  }
+}
