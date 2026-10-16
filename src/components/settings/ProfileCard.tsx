@@ -144,7 +144,6 @@ export function ProfileCard({ profile }: { profile: UserProfile }) {
         </Button>
       </form>
 
-      {/* Hidden until W1's wizard lands: the placeholder overwrites the profile. */}
       {FEATURES.onboardingWizard && (
         <div className="mt-6 border-t border-border pt-4">
           <p className="text-body-sm font-medium text-text">{t('settings.profile.retakeTitle')}</p>

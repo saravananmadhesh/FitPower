@@ -235,7 +235,7 @@ test('retaking setup keeps the running program and can be cancelled', async ({ p
   await page.getByRole('button', { name: 'Cancel' }).click();
   await expect(page).toHaveURL(/\/settings$/);
 
-  await page.goto('/onboarding');
+  await page.getByRole('button', { name: 'Redo setup' }).click();
   await heading(page, 'About you');
   await next(page);
   await heading(page, 'Your body');
