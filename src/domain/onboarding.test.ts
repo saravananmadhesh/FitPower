@@ -76,7 +76,10 @@ describe('step validation', () => {
     const base = { goalType: 'muscle', startDate: '2026-10-17' };
     expect(schema.safeParse({ ...base, targetDate: '2026-11-13' }).success).toBe(true); // 28 days
     expect(schema.safeParse({ ...base, targetDate: '2026-11-12' }).success).toBe(false);
-    expect(schema.safeParse({ ...base, targetDate: '2028-10-16' }).success).toBe(false);
+    expect(schema.safeParse({ ...base, targetDate: '2027-10-17' }).success).toBe(false); // 366 days
+    expect(
+      schema.safeParse({ ...base, startDate: '2026-01-01', targetDate: '2026-06-01' }).success,
+    ).toBe(false); // already over
   });
 
   it('coerces radio strings to numbers and rejects unknown options', () => {
@@ -165,15 +168,36 @@ describe('profileFromAnswers', () => {
   it('round-trips through draftFromProfile', () => {
     const parq = { ...emptyParq(), medication: true };
     const profile = profileFromAnswers(answers({ parq, conditions: 'asthma' }), 'now');
-    const draft = draftFromProfile(profile, TODAY);
+    const draft = draftFromProfile({ profile }, TODAY);
     expect(draft).toMatchObject({ name: 'Alex', weightKg: 78, conditions: 'asthma' });
     // The PAR-Q line is not duplicated into the free-text box.
     expect(draft.conditions).not.toContain('PAR-Q');
   });
 
   it('pre-fills from the migrated legacy profile', () => {
-    const draft = draftFromProfile(legacyProfile('2026-01-05', TODAY), TODAY);
+    const draft = draftFromProfile({ profile: legacyProfile('2026-01-05', TODAY) }, TODAY);
     expect(draft.injuries?.knee).toEqual({ selected: true, side: 'left', note: 'Mild knee pain' });
     expect(draft.heightCm).toBe(166);
+  });
+
+  it("keeps a running plan's dates and shows the latest weight when retaking setup", () => {
+    const profile = legacyProfile('2026-09-06', TODAY);
+    const draft = draftFromProfile(
+      { profile, plan: { startDate: '2026-09-06', totalDays: 180 }, latestWeightKg: 76.2 },
+      TODAY,
+    );
+    expect(draft).toMatchObject({
+      startDate: '2026-09-06',
+      targetDate: '2027-03-04',
+      weightKg: 76.2,
+    });
+    // A start 40 days ago is still a valid answer.
+    expect(goalSchema(TODAY).safeParse({ ...draft, goalType: 'fat-loss' }).success).toBe(true);
+  });
+
+  it('can keep the original start weight', () => {
+    expect(profileFromAnswers(answers({ weightKg: 76.2 }), 'now', 'now', 80).startWeightKg).toBe(
+      80,
+    );
   });
 });

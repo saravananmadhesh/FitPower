@@ -62,10 +62,22 @@
   "goal": {
     "goalType": "Main goal",
     "types": {
-      "fat-loss": { "label": "Lose fat", "hint": "Slim down while keeping muscle" },
-      "muscle": { "label": "Build muscle", "hint": "Get stronger and add size" },
-      "fitness": { "label": "Get fitter", "hint": "More energy, stamina and mobility" },
-      "maintain": { "label": "Stay healthy", "hint": "Keep your current shape" }
+      "fat-loss": {
+        "label": "Lose fat",
+        "hint": "Slim down while keeping muscle"
+      },
+      "muscle": {
+        "label": "Build muscle",
+        "hint": "Get stronger and add size"
+      },
+      "fitness": {
+        "label": "Get fitter",
+        "hint": "More energy, stamina and mobility"
+      },
+      "maintain": {
+        "label": "Stay healthy",
+        "hint": "Keep your current shape"
+      }
     },
     "startDate": "Start date",
     "startHint": "Day 1 of your plan.",
@@ -184,7 +196,9 @@
     "aiOffBody": "The built-in plans work fully offline. You can redesign your plan with an AI coach later.",
     "create": "Create my plan",
     "created": "Your plan is ready",
-    "saveError": "Couldn't save your plan. Please try again."
+    "saveError": "Couldn't save your plan. Please try again.",
+    "restartNotice": "This restarts your program: day 1 becomes {{date}}. Your logged workouts, weights and photos are kept.",
+    "continueNotice": "Your program keeps its start date ({{date}}), so your day count and streak carry on."
   },
   "errors": {
     "date": "Enter a date",
@@ -195,8 +209,8 @@
     "weight": "Enter a weight between 30 and 300 kg",
     "goalWeight": "Enter a goal weight between 30 and 300 kg",
     "goalType": "Choose a goal",
-    "startDate": "Pick a start date within 60 days of today",
-    "targetDate": "Pick a target date between 4 weeks and 2 years after the start",
+    "startDate": "Pick a start date no more than 60 days ahead",
+    "targetDate": "Pick a target date between 4 weeks and 1 year after the start",
     "experience": "Choose your experience level",
     "noteLength": "Use 500 characters or fewer",
     "conditionsLength": "Use 600 characters or fewer",
@@ -204,6 +218,8 @@
     "daysPerWeek": "Choose how many days",
     "minutes": "Choose a session length",
     "equipment": "Pick at least one option",
-    "level": "Choose a plan"
-  }
+    "level": "Choose a plan",
+    "targetPast": "Pick a target date after today"
+  },
+  "cancel": "Cancel"
 }

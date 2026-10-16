@@ -20,6 +20,7 @@ import {
   type PlanLevel,
 } from '@/domain/onboarding';
 import { parseISO } from '@/domain/dates';
+import { cn } from '@/utils/cn';
 import { Checkbox, ChoiceGroup, Field } from './fields';
 import { textareaClass } from './fieldUtils';
 
@@ -284,7 +285,7 @@ function HealthStep() {
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning" aria-hidden="true" />
           <div className="space-y-2">
             <p className="text-body font-medium">{t('health.doctorTitle')}</p>
-            <p className="text-body-sm text-text-muted">{t('health.doctorBody')}</p>
+            <p className="text-body-sm text-text">{t('health.doctorBody')}</p>
             <Checkbox name="clearedByDoctor" label={t('health.cleared')} />
           </div>
         </div>
@@ -306,7 +307,7 @@ function RatingGroup({ name, legend }: { name: string; legend: string }) {
           label: String(n),
         }))}
       />
-      <div className="mt-1 flex justify-between text-caption text-text-subtle" aria-hidden="true">
+      <div className="mt-1 flex justify-between text-caption text-text-muted" aria-hidden="true">
         <span>{t('lifestyle.ratingLow')}</span>
         <span>{t('lifestyle.ratingHigh')}</span>
       </div>
@@ -356,9 +357,17 @@ interface PlanStepProps extends StepProps {
   aiEnabled: boolean;
   onDesignWithAi: () => void;
   busy: boolean;
+  currentStartDate?: string;
 }
 
-function PlanStep({ answers, recommended, aiEnabled, onDesignWithAi, busy }: PlanStepProps) {
+function PlanStep({
+  answers,
+  recommended,
+  aiEnabled,
+  onDesignWithAi,
+  busy,
+  currentStartDate,
+}: PlanStepProps) {
   const { t, i18n } = useTranslation('onboarding');
   const a = answers as OnboardingAnswers;
   const injured = INJURY_AREAS.filter((area) => a.injuries?.[area]?.selected);
@@ -368,10 +377,7 @@ function PlanStep({ answers, recommended, aiEnabled, onDesignWithAi, busy }: Pla
   return (
     <>
       <section aria-labelledby="plan-summary" className="rounded-md bg-card-2 p-3">
-        <h2
-          id="plan-summary"
-          className="mb-1 text-caption uppercase tracking-wide text-text-subtle"
-        >
+        <h2 id="plan-summary" className="mb-1 text-caption uppercase tracking-wide text-text-muted">
           {t('plan.summary')}
         </h2>
         <ul className="space-y-0.5 text-body-sm text-text">
@@ -406,6 +412,20 @@ function PlanStep({ answers, recommended, aiEnabled, onDesignWithAi, busy }: Pla
           )}
         </ul>
       </section>
+
+      {currentStartDate && (
+        <p
+          role="status"
+          className={cn(
+            'rounded-md border p-3 text-body-sm text-text',
+            currentStartDate === a.startDate ? 'border-border' : 'border-warning bg-warning-soft',
+          )}
+        >
+          {currentStartDate === a.startDate
+            ? t('plan.continueNotice', { date: fmt(currentStartDate) })
+            : t('plan.restartNotice', { date: fmt(a.startDate) })}
+        </p>
+      )}
 
       <ChoiceGroup
         name="level"

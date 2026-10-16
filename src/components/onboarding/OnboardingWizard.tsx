@@ -37,6 +37,10 @@ export interface OnboardingWizardProps {
   onComplete: (answers: OnboardingAnswers, mode: CompletionMode) => void;
   aiEnabled: boolean;
   saving: boolean;
+  /** Leave without saving; offered only when the user already has a plan. */
+  onCancel?: () => void;
+  /** The current plan's day 1, when retaking setup. */
+  currentStartDate?: string;
 }
 
 /**
@@ -57,6 +61,8 @@ function StepForm({
   onComplete,
   aiEnabled,
   saving,
+  onCancel,
+  currentStartDate,
 }: OnboardingWizardProps) {
   const { t } = useTranslation('onboarding');
   const index = ONBOARDING_STEPS.indexOf(step);
@@ -112,10 +118,15 @@ function StepForm({
           <span className="flex h-10 w-10 items-center justify-center rounded-md bg-accent-soft text-accent">
             <Dumbbell className="h-5 w-5" aria-hidden="true" />
           </span>
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-h2 text-text">{t('brand')}</p>
             <p className="text-body-sm text-text-muted">{t('tagline')}</p>
           </div>
+          {onCancel && (
+            <Button type="button" variant="ghost" onClick={onCancel} disabled={saving}>
+              {t('cancel')}
+            </Button>
+          )}
         </header>
 
         <div>
@@ -168,6 +179,7 @@ function StepForm({
                   aiEnabled={aiEnabled}
                   onDesignWithAi={() => void submit('ai')()}
                   busy={saving}
+                  currentStartDate={currentStartDate}
                 />
               </div>
 

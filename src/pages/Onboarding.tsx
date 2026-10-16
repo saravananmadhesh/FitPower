@@ -7,7 +7,8 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { OnboardingWizard, type CompletionMode } from '@/components/onboarding/OnboardingWizard';
 import { useOnboardingDraft } from '@/components/onboarding/useOnboardingDraft';
 import { createBuiltinPlan } from '@/components/onboarding/starterPlan';
-import { useProfileQuery, useSaveProfileMutation } from '@/queries/useProfile';
+import { useSaveProfileMutation } from '@/queries/useProfile';
+import { useAppDataQuery } from '@/queries/useAppDataQuery';
 import { useSavePlanMutation } from '@/queries/usePlan';
 import {
   draftFromProfile,
@@ -16,6 +17,7 @@ import {
   type OnboardingAnswers,
 } from '@/domain/onboarding';
 import { todayISO } from '@/domain/dates';
+import { currentWeight } from '@/domain/nutrition';
 import { FEATURES } from '@/config/features';
 import { logger } from '@/utils/logger';
 import { ROUTES } from '@/routes';
@@ -29,23 +31,46 @@ export default function Onboarding() {
   const { t } = useTranslation('onboarding');
   const navigate = useNavigate();
   const [today] = useState(todayISO);
-  const profileQuery = useProfileQuery();
+  const appData = useAppDataQuery();
   const saveProfile = useSaveProfileMutation();
   const savePlan = useSavePlanMutation();
   const { draft, step, start, update, clear } = useOnboardingDraft();
 
-  const existing = profileQuery.data ?? null;
+  const existing = appData.data?.profile ?? null;
+  const existingPlan = appData.data?.plan ?? null;
   // Set once the plan is saved, so clearing the draft doesn't re-seed it.
   const finished = useRef(false);
   useEffect(() => {
-    if (finished.current || draft || profileQuery.isLoading || profileQuery.isError) return;
-    start(existing ? draftFromProfile(existing, today) : initialDraft(today));
-  }, [draft, existing, profileQuery.isLoading, profileQuery.isError, start, today]);
+    if (finished.current || draft || appData.isLoading || appData.isError) return;
+    start(
+      existing
+        ? draftFromProfile(
+            {
+              profile: existing,
+              plan: existingPlan ?? undefined,
+              latestWeightKg: appData.data?.weights.length
+                ? currentWeight(appData.data.weights, existing.startWeightKg)
+                : undefined,
+            },
+            today,
+          )
+        : initialDraft(today),
+    );
+  }, [
+    draft,
+    existing,
+    existingPlan,
+    appData.data,
+    appData.isLoading,
+    appData.isError,
+    start,
+    today,
+  ]);
 
-  if (profileQuery.isError) {
+  if (appData.isError) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-bg p-4">
-        <ErrorState onRetry={() => profileQuery.refetch()} />
+        <ErrorState onRetry={() => appData.refetch()} />
       </main>
     );
   }
@@ -63,7 +88,14 @@ export default function Onboarding() {
   async function handleComplete(answers: OnboardingAnswers, mode: CompletionMode) {
     try {
       const now = new Date().toISOString();
-      const profile = profileFromAnswers(answers, now, existing?.createdAt ?? now);
+      // Carrying on from the same start keeps the original start weight ("kg lost").
+      const sameStart = existing && existingPlan?.startDate === answers.startDate;
+      const profile = profileFromAnswers(
+        answers,
+        now,
+        existing?.createdAt ?? now,
+        sameStart ? existing.startWeightKg : answers.weightKg,
+      );
       const plan = createBuiltinPlan(profile, answers.level, answers.startDate, now);
       await saveProfile.mutateAsync(profile);
       await savePlan.mutateAsync(plan);
@@ -80,6 +112,12 @@ export default function Onboarding() {
     }
   }
 
+  function handleCancel() {
+    finished.current = true;
+    clear();
+    navigate(ROUTES.settings, { replace: true });
+  }
+
   return (
     <OnboardingWizard
       today={today}
@@ -89,6 +127,9 @@ export default function Onboarding() {
       onComplete={handleComplete}
       aiEnabled={FEATURES.coach}
       saving={saveProfile.isPending || savePlan.isPending}
+      // Only someone who already has a plan can leave without finishing.
+      onCancel={existing && existingPlan ? handleCancel : undefined}
+      currentStartDate={existingPlan?.startDate}
     />
   );
 }

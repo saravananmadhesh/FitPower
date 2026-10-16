@@ -30,7 +30,7 @@ export const MIN_AGE = 13;
 export const MAX_AGE = 100;
 /** Shortest and longest program the target date can produce (days, inclusive). */
 export const MIN_PLAN_DAYS = 28;
-export const MAX_PLAN_DAYS = 730;
+export const MAX_PLAN_DAYS = 365;
 export const DEFAULT_PLAN_DAYS = 180;
 export const DAYS_PER_WEEK_OPTIONS = [2, 3, 4, 5, 6] as const;
 export const MINUTES_OPTIONS = [20, 30, 45, 60, 90] as const;
@@ -96,11 +96,12 @@ export function goalSchema(today: string) {
   return z
     .object({
       goalType: z.enum(GOAL_TYPES, { error: 'errors.goalType' }),
-      startDate: isoDate.refine(
-        (d) => Math.abs(calendarDaysBetween(today, d)) <= 60,
-        'errors.startDate',
-      ),
-      targetDate: isoDate,
+      // A plan already under way (retaking setup) keeps its past start date.
+      startDate: isoDate.refine((d) => {
+        const offset = calendarDaysBetween(today, d);
+        return offset >= -MAX_PLAN_DAYS && offset <= 60;
+      }, 'errors.startDate'),
+      targetDate: isoDate.refine((d) => d > today, 'errors.targetPast'),
     })
     .refine(
       (v) => {
@@ -220,8 +221,20 @@ export function initialDraft(today: string): OnboardingDraft {
   };
 }
 
+/** What retaking onboarding keeps from the current setup. */
+export interface ExistingSetup {
+  profile: UserProfile;
+  /** The active plan's dates, so retaking setup doesn't restart the program. */
+  plan?: { startDate: string; totalDays: number };
+  /** Most recent logged weight, shown as the current weight. */
+  latestWeightKg?: number;
+}
+
 /** Pre-fills the wizard from an existing profile (retaking onboarding). */
-export function draftFromProfile(profile: UserProfile, today: string): OnboardingDraft {
+export function draftFromProfile(
+  { profile, plan, latestWeightKg }: ExistingSetup,
+  today: string,
+): OnboardingDraft {
   const injuries = emptyInjuries();
   for (const i of profile.injuries) {
     injuries[i.area] = { selected: true, side: i.side ?? '', note: i.note };
@@ -229,11 +242,15 @@ export function draftFromProfile(profile: UserProfile, today: string): Onboardin
   const base = initialDraft(today);
   return {
     ...base,
+    ...(plan && {
+      startDate: plan.startDate,
+      targetDate: targetDateFor(plan.startDate, plan.totalDays),
+    }),
     name: profile.name,
     birthDate: profile.birthDate,
     sex: profile.sex,
     heightCm: profile.heightCm,
-    weightKg: profile.startWeightKg,
+    weightKg: latestWeightKg ?? profile.startWeightKg,
     goalWeightKg: profile.goalWeightKg,
     goalType: profile.goalType,
     experience: profile.experience,
@@ -296,6 +313,8 @@ export function profileFromAnswers(
   answers: OnboardingAnswers,
   now: string,
   createdAt: string = now,
+  /** Kept when the program carries on from an earlier start (retaking setup). */
+  startWeightKg: number = answers.weightKg,
 ): UserProfile {
   const injuries = INJURY_AREAS.filter((a) => answers.injuries[a].selected).map((area) => {
     const { side, note } = answers.injuries[area];
@@ -306,7 +325,7 @@ export function profileFromAnswers(
     birthDate: answers.birthDate,
     sex: answers.sex,
     heightCm: answers.heightCm,
-    startWeightKg: answers.weightKg,
+    startWeightKg,
     goalWeightKg: answers.goalWeightKg,
     goalType: answers.goalType,
     targetDate: answers.targetDate,

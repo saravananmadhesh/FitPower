@@ -38,6 +38,8 @@
 
 /* Light theme — DESIGN.md §2 */
 .light {
+  /* Status and accent colours are the darker shades so text, and white text on
+     them, reach WCAG AA (4.5:1) on white, card-2 and their own soft tints. */
   --color-bg: #f4f6fa;
   --color-surface: #ffffff;
   --color-card: #ffffff;
@@ -48,20 +50,20 @@
   --color-text-muted: #5b6472;
   --color-text-subtle: #8a93a3;
 
-  --color-accent: #6fa80f;
+  --color-accent: #3f6212;
   --color-accent-ink: #ffffff;
-  --color-accent-soft: rgba(111, 168, 15, 0.12);
+  --color-accent-soft: rgba(63, 98, 18, 0.12);
 
-  --color-info: #5b8def;
-  --color-info-soft: rgba(91, 141, 239, 0.12);
-  --color-teal: #2dd4bf;
-  --color-teal-soft: rgba(45, 212, 191, 0.12);
-  --color-success: #34d399;
-  --color-success-soft: rgba(52, 211, 153, 0.12);
-  --color-warning: #ffb020;
-  --color-warning-soft: rgba(255, 176, 32, 0.12);
-  --color-danger: #ff5c5c;
-  --color-danger-soft: rgba(255, 92, 92, 0.12);
+  --color-info: #2f5fd0;
+  --color-info-soft: rgba(47, 95, 208, 0.12);
+  --color-teal: #0f766e;
+  --color-teal-soft: rgba(15, 118, 110, 0.12);
+  --color-success: #047857;
+  --color-success-soft: rgba(4, 120, 87, 0.12);
+  --color-warning: #92400e;
+  --color-warning-soft: rgba(146, 64, 14, 0.12);
+  --color-danger: #c81e1e;
+  --color-danger-soft: rgba(200, 30, 30, 0.12);
 }
 
 /*

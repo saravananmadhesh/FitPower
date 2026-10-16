@@ -1,4 +1,8 @@
+// Callbacks passed to page.evaluate() run in the browser, so this file needs the DOM lib.
+/// <reference lib="dom" />
+import { createRequire } from 'node:module';
 import { expect, test, type Page } from '@playwright/test';
+import { seedProfile } from './fixtures/seedProfile';
 
 const STORE_KEY = 'fitpower-data';
 const DRAFT_KEY = 'fitpower-onboarding-draft';
@@ -146,4 +150,109 @@ test('the wizard is keyboard operable', async ({ page }) => {
   await page.keyboard.press('Enter');
   await heading(page, 'Your body');
   await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+});
+
+const axeSource = createRequire(import.meta.url).resolve('axe-core/axe.min.js');
+
+/** Runs axe-core (WCAG 2.1 A/AA rules) in the page and returns a compact violation list. */
+async function axeViolations(page: Page): Promise<string[]> {
+  await page.addScriptTag({ path: axeSource });
+  const violations = await page.evaluate(async () => {
+    const axe = (window as unknown as { axe: { run: (...args: unknown[]) => Promise<unknown> } })
+      .axe;
+    const result = (await axe.run(document, {
+      runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
+    })) as { violations: { id: string; impact: string | null; nodes: { target: string[] }[] }[] };
+    return result.violations;
+  });
+  return violations.map(
+    (v) => `${v.id} (${v.impact}) ×${v.nodes.length}: ${v.nodes[0]?.target.join(' ')}`,
+  );
+}
+
+for (const theme of ['dark', 'light'] as const) {
+  test(`every step passes axe (WCAG 2.1 A/AA) in the ${theme} theme`, async ({ page }) => {
+    await page.addInitScript((value) => {
+      localStorage.setItem('fitpower-ui', JSON.stringify({ state: { theme: value }, version: 0 }));
+    }, theme);
+    await page.goto('/onboarding');
+    await heading(page, 'About you');
+    await expect(page.locator('html')).toHaveClass(new RegExp(theme));
+
+    // Errors showing, then each filled step.
+    await next(page);
+    await expect(page.getByText('Choose an option')).toBeVisible();
+    expect(await axeViolations(page), 'about with errors').toEqual([]);
+    await fillAboutAndBody(page);
+
+    await heading(page, 'Your goal');
+    await page.getByText('Lose fat', { exact: true }).click();
+    expect(await axeViolations(page), 'goal').toEqual([]);
+    await next(page);
+
+    await heading(page, 'Training experience');
+    await page.getByText('Beginner', { exact: true }).click();
+    expect(await axeViolations(page), 'experience').toEqual([]);
+    await next(page);
+
+    await heading(page, 'Injuries and health');
+    await page.getByLabel('Knee').check();
+    await page
+      .getByLabel('A doctor has said I have a heart condition or high blood pressure')
+      .check();
+    expect(await axeViolations(page), 'health').toEqual([]);
+    await next(page);
+
+    await heading(page, 'Lifestyle');
+    await page.getByRole('group', { name: 'How would you rate your diet?' }).getByText('3').click();
+    await page
+      .getByRole('group', { name: 'How would you rate your overall health?' })
+      .getByText('4')
+      .click();
+    await page.getByText('3 days', { exact: true }).click();
+    await page.getByText('45 min', { exact: true }).click();
+    expect(await axeViolations(page), 'lifestyle').toEqual([]);
+    await next(page);
+
+    await heading(page, 'Choose your plan');
+    expect(await axeViolations(page), 'plan').toEqual([]);
+  });
+}
+
+test('retaking setup keeps the running program and can be cancelled', async ({ page }) => {
+  // 40 days into a program, with a newer weight logged.
+  await seedProfile(page, { startDate: '2026-09-06' });
+  await page.addInitScript(() => {
+    const raw = localStorage.getItem('fitpower-data');
+    if (!raw || raw.includes('76.2')) return;
+    const stored = JSON.parse(raw);
+    stored.state.weights = [{ date: '2026-10-10', kg: 76.2 }];
+    localStorage.setItem('fitpower-data', JSON.stringify(stored));
+  });
+
+  await page.goto('/onboarding');
+  await heading(page, 'About you');
+  await page.getByRole('button', { name: 'Cancel' }).click();
+  await expect(page).toHaveURL(/\/settings$/);
+
+  await page.goto('/onboarding');
+  await heading(page, 'About you');
+  await next(page);
+  await heading(page, 'Your body');
+  await expect(page.getByLabel('Current weight (kg)')).toHaveValue('76.2');
+  await next(page);
+  await heading(page, 'Your goal');
+  await expect(page.getByLabel('Start date')).toHaveValue('2026-09-06');
+  for (const step of ['Your goal', 'Training experience', 'Injuries and health', 'Lifestyle']) {
+    await heading(page, step);
+    await next(page);
+  }
+
+  await heading(page, 'Choose your plan');
+  await expect(page.getByText(/keeps its start date/)).toBeVisible();
+  await page.getByRole('button', { name: 'Create my plan' }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByText('Day 41 of 180')).toBeVisible();
+  // "kg lost" still counts from the original 80 kg start.
+  await expect(page.getByText('-3.8 kg', { exact: true })).toBeVisible();
 });

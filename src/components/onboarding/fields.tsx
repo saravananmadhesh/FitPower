@@ -38,7 +38,7 @@ export function Field({ name, label, hint, optional, children }: FieldProps) {
     <div>
       <label htmlFor={id} className="mb-1 flex items-baseline gap-2 text-body-sm text-text">
         {label}
-        {optional && <span className="text-caption text-text-subtle">{t('optional')}</span>}
+        {optional && <span className="text-caption text-text-muted">{t('optional')}</span>}
       </label>
       {children({
         id,
@@ -113,7 +113,7 @@ export function ChoiceGroup({
           <label
             key={o.value}
             className={cn(
-              'relative flex cursor-pointer rounded-md border border-border bg-card-2 text-text transition-colors duration-base',
+              'group relative flex cursor-pointer rounded-md border border-border bg-card-2 text-text transition-colors duration-base',
               'hover:border-border-strong',
               'has-[:checked]:border-accent has-[:checked]:bg-accent-soft',
               'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent',
@@ -135,7 +135,9 @@ export function ChoiceGroup({
                 {o.badge}
               </span>
               {o.hint && !compact && (
-                <span className="mt-0.5 block text-caption text-text-muted">{o.hint}</span>
+                <span className="mt-0.5 block text-caption text-text-muted group-has-[:checked]:text-text">
+                  {o.hint}
+                </span>
               )}
             </span>
           </label>
