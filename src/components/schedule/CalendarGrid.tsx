@@ -29,7 +29,7 @@ export function CalendarGrid({ plan, todayKey, done, onToggle }: CalendarGridPro
   return (
     <div
       className="grid grid-cols-5 gap-1.5 sm:grid-cols-8 lg:grid-cols-10"
-      role="grid"
+      role="group"
       aria-label={t('schedule.gridLabel', { total: plan.totalDays })}
     >
       {days.map((day) => {

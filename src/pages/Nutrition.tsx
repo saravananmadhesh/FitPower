@@ -140,7 +140,7 @@ function NutritionContent({ data }: { data: ReadyAppData }) {
           <span className="text-body-sm text-text-muted">/ 7,000–10,000</span>
         </p>
         <StepsForm onSet={(steps) => setSteps.mutate({ date: todayKey, steps })} />
-        <p className="mt-2 text-caption text-text-subtle">{t('nutrition.steps.hint')}</p>
+        <p className="mt-2 text-caption text-text-muted">{t('nutrition.steps.hint')}</p>
       </Card>
 
       <Card>

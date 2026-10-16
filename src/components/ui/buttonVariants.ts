@@ -9,7 +9,9 @@ export const buttonVariants = cva(
         secondary:
           'bg-card-2 text-text border border-border hover:border-border-strong active:bg-card',
         ghost: 'bg-transparent text-text-muted hover:bg-card-2 hover:text-text',
-        danger: 'bg-danger text-white hover:brightness-95 active:brightness-90',
+        // Page-background text: dark on the dark theme's light red, light on the
+        // light theme's deep red, so both reach AA (white on #ff5c5c does not).
+        danger: 'bg-danger text-bg hover:brightness-95 active:brightness-90',
       },
       size: {
         sm: 'h-8 px-3 text-body-sm gap-1.5',
