@@ -22,6 +22,7 @@ import { useWorkoutTimer } from '@/hooks/useWorkoutTimer';
 import { phaseFor, sessionById, sessionFor } from '@/domain/plan';
 import { dayNumber, todayISO } from '@/domain/dates';
 import { getLastSet } from '@/domain/metrics';
+import { hasInjury } from '@/domain/profile';
 import { findByProgramName } from '@/domain/catalog';
 import { howToSearchUrl, videoSearchUrl } from '@/utils/exerciseLinks';
 import { galleryExercisePath } from '@/routes';
@@ -55,7 +56,11 @@ function WorkoutContent({ data }: { data: ReadyAppData }) {
 
   const today = new Date();
   const todayKey = todayISO();
-  const { plan } = data;
+  const { plan, profile } = data;
+  const kneeInjury = hasInjury(profile, 'knee');
+  // Generated and AI plans write session notes for this person's own injuries
+  // and health; the legacy plan's notes were written for a knee injury.
+  const showSessionNote = plan.source !== 'legacy' || kneeInjury;
   const substitutions = plan.substitutions;
   // Defaults to today's session; on walk/rest days, the plan's first session.
   const [selectedId, setSelectedId] = useState<string>(
@@ -209,9 +214,12 @@ function WorkoutContent({ data }: { data: ReadyAppData }) {
         </ul>
 
         <div className="mt-4 rounded-lg border border-warning/30 bg-warning-soft px-4 py-3">
-          <p className="text-body-sm font-medium text-text">{t('workout.kneeCare.title')}</p>
+          <p className="text-body-sm font-medium text-text">
+            {kneeInjury ? t('workout.kneeCare.title') : t('workout.formCare.title')}
+          </p>
           <p className="mt-1 text-body-sm text-text-muted">
-            {session.note ?? t('workout.kneeCare.body')}
+            {(showSessionNote ? session.note : undefined) ??
+              (kneeInjury ? t('workout.kneeCare.body') : t('workout.formCare.body'))}
           </p>
         </div>
 
