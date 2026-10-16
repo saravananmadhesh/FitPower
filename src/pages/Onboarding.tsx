@@ -19,6 +19,7 @@ import { todayISO } from '@/domain/dates';
 import { currentWeight } from '@/domain/nutrition';
 import { generatePlan } from '@/domain/planGenerator';
 import { FEATURES } from '@/config/features';
+import { useAiKey } from '@/ai/useAiKey';
 import { logger } from '@/utils/logger';
 import { ROUTES } from '@/routes';
 
@@ -32,6 +33,7 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [today] = useState(todayISO);
   const appData = useAppDataQuery();
+  const aiKey = useAiKey();
   const saveProfile = useSaveProfileMutation();
   const savePlan = useSavePlanMutation();
   const { draft, step, start, update, clear } = useOnboardingDraft();
@@ -103,7 +105,7 @@ export default function Onboarding() {
       clear();
       toast.success(t('plan.created'));
       // The AI coach starts from the saved profile and the built-in plan as a draft.
-      navigate(mode === 'ai' ? `${ROUTES.coach}?from=onboarding` : ROUTES.dashboard, {
+      navigate(mode === 'ai' ? `${ROUTES.coach}?intent=plan` : ROUTES.dashboard, {
         replace: true,
       });
     } catch (err) {
@@ -126,6 +128,7 @@ export default function Onboarding() {
       onStepChange={update}
       onComplete={handleComplete}
       aiEnabled={FEATURES.coach}
+      aiConnected={aiKey !== null}
       saving={saveProfile.isPending || savePlan.isPending}
       // Only someone who already has a plan can leave without finishing.
       onCancel={existing && existingPlan ? handleCancel : undefined}

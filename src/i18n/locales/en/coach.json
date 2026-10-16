@@ -1,6 +1,146 @@
 {
-  "placeholder": {
+  "title": "AI coach",
+  "description": "Chat with a coach that designs your plan and reviews your progress, using your own AI key.",
+  "notConnected": {
+    "badge": "AI not connected",
+    "title": "Connect your own AI key to use the coach",
+    "body": "The coach interviews you, designs a plan around your goals and injuries, and helps you adjust it as you go. Everything else in FitPower works without AI.",
+    "connect": "Connect AI",
+    "builtIn": "Use a built-in plan instead"
+  },
+  "header": {
+    "connectedTo": "Connected to {{provider}} · {{model}}",
+    "manageKey": "AI key",
+    "clearChat": "Clear chat",
+    "clearConfirm": "Clear the whole conversation? This can't be undone.",
+    "cleared": "Chat cleared"
+  },
+  "providers": {
+    "anthropic": "Anthropic (Claude)",
+    "openai": "OpenAI",
+    "openai-compatible": "OpenAI-compatible (Ollama, LM Studio…)"
+  },
+  "keyDialog": {
+    "title": "Connect your AI key",
+    "description": "Your key stays in this browser. It is sent only to the provider you choose, only when you chat with the coach, and it is never included in backups.",
+    "provider": "Provider",
+    "apiKey": "API key",
+    "apiKeyOptional": "API key (optional for local servers)",
+    "apiKeyPlaceholder": "Paste your key",
+    "showKey": "Show key",
+    "hideKey": "Hide key",
+    "model": "Model",
+    "modelHint": "Any model your key can use that supports tool calling.",
+    "baseUrl": "Server URL",
+    "baseUrlHint": "For local servers: Ollama is http://localhost:11434/v1, LM Studio is http://localhost:1234/v1.",
+    "privacyTitle": "What the coach can see",
+    "privacyBody": "When you send a message, the coach receives your profile, your active plan and a summary of your progress so it can give personal advice. Your photos never leave this device.",
+    "save": "Save key",
+    "cancel": "Cancel",
+    "remove": "Remove key",
+    "saved": "AI key saved",
+    "removed": "AI key removed from this browser",
+    "errors": {
+      "apiKey": "Enter your API key.",
+      "model": "Enter a model name.",
+      "baseUrl": "Enter a full URL, starting with http:// or https://."
+    }
+  },
+  "settingsCard": {
     "title": "AI coach",
-    "body": "The AI coach isn't available yet."
+    "connected": "Connected to {{provider}} · {{model}}",
+    "keyEnding": "Key {{masked}}",
+    "notConnected": "Not connected. FitPower works fully offline; the coach is optional.",
+    "connect": "Connect AI",
+    "change": "Change key",
+    "remove": "Remove key",
+    "clearChat": "Delete chat history",
+    "chatCleared": "Chat history deleted",
+    "keepNote": "You can remove the key after your plan is made, or keep it to keep chatting with the coach."
+  },
+  "chat": {
+    "label": "Conversation with the coach",
+    "inputLabel": "Message the coach",
+    "placeholder": "Ask about your plan, progress or a workout…",
+    "send": "Send",
+    "stop": "Stop",
+    "thinking": "Coach is thinking…",
+    "you": "You",
+    "coach": "Coach",
+    "stoppedEarly": "I stopped before finishing that. Say \"continue\" and I'll pick it up.",
+    "emptyTitle": "Hi! I'm your FitPower coach.",
+    "emptyBody": "I already know your profile from setup. Tell me what you'd like, or pick a starting point.",
+    "starters": {
+      "plan": "Design my plan",
+      "planText": "Please design a training plan for me. Ask me anything you need first.",
+      "progress": "How am I doing?",
+      "progressText": "How is my progress going? What should I focus on this week?",
+      "swap": "Make today easier",
+      "swapText": "I'm short on energy today. How can I adjust today's workout?"
+    },
+    "scope": "The coach only helps with fitness, nutrition and this app. It isn't a doctor.",
+    "tools": {
+      "get_profile": "Read your profile",
+      "get_active_plan": "Read your current plan",
+      "get_progress_summary": "Checked your progress",
+      "list_albums": "Browsed the exercise gallery",
+      "search_exercises": "Searched exercises",
+      "get_exercise": "Looked up an exercise",
+      "propose_plan": "Drafted a plan",
+      "update_profile": "Suggested a profile change",
+      "unknown": "Used a tool"
+    },
+    "errors": {
+      "auth": "Your provider rejected the key. Check it in AI key settings.",
+      "rate-limit": "Your provider is rate-limiting requests. Wait a moment and try again.",
+      "network": "Couldn't reach your AI provider. Check your internet connection (or that your local server is running).",
+      "bad-response": "Your provider couldn't handle the request. Check the model name supports tool calling.",
+      "server": "Your AI provider had a problem. Try again in a moment.",
+      "unknown": "Something went wrong talking to the coach.",
+      "retry": "Try again",
+      "details": "Details: {{detail}}"
+    }
+  },
+  "proposal": {
+    "planTitle": "Proposed plan",
+    "planMeta": "{{days}} days from {{start}} · {{sessions}} sessions · {{phases}} phases",
+    "weekly": "Weekly split",
+    "sessions": "Sessions",
+    "phases": "Phases",
+    "phaseLine": "Days {{start}}–{{end}} · {{rounds}} rounds · {{work}}s work / {{rest}}s rest",
+    "walk": "Walk",
+    "rest": "Rest",
+    "notes": "Notes",
+    "fitTitle": "Doesn't fit your schedule yet",
+    "fitDays": "Trains {{days}} days a week; your profile says {{max}}.",
+    "fitLength": "{{session}} runs about {{minutes}} min; your profile says {{max}} min.",
+    "accept": "Accept plan",
+    "askChanges": "Ask for changes",
+    "changesPrefill": "I'd like to change the plan: ",
+    "accepted": "Accepted, now your active plan",
+    "dismissed": "Not used",
+    "savedToast": "New plan saved. It starts on {{start}}.",
+    "saveError": "Couldn't save the plan. Try again.",
+    "acceptedNote": "The user accepted the proposed plan \"{{name}}\". It is now the active plan.",
+    "profileTitle": "Suggested profile change",
+    "profileAccept": "Update profile",
+    "profileDismiss": "Keep as is",
+    "profileSaved": "Profile updated",
+    "profileAcceptedNote": "The user accepted the profile change ({{fields}}).",
+    "profileDismissedNote": "The user declined the profile change ({{fields}}).",
+    "planDismissedNote": "The user asked for changes to the proposed plan instead of accepting it.",
+    "fields": {
+      "goalType": "Goal",
+      "goalWeightKg": "Goal weight (kg)",
+      "targetDate": "Target date",
+      "experience": "Experience",
+      "injuries": "Injuries",
+      "health": "Health",
+      "dietRating": "Diet rating",
+      "healthRating": "Health rating",
+      "daysPerWeek": "Days per week",
+      "minutesPerSession": "Minutes per session",
+      "equipment": "Equipment"
+    }
   }
 }

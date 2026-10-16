@@ -357,6 +357,8 @@ interface PlanStepProps extends StepProps {
   /** Why that level, as keys under `plans:recommend.reasons`. */
   recommendReasons: string[];
   aiEnabled: boolean;
+  /** The user has saved an AI key. */
+  aiConnected: boolean;
   onDesignWithAi: () => void;
   busy: boolean;
   currentStartDate?: string;
@@ -367,6 +369,7 @@ function PlanStep({
   recommended,
   recommendReasons,
   aiEnabled,
+  aiConnected,
   onDesignWithAi,
   busy,
   currentStartDate,
@@ -454,10 +457,14 @@ function PlanStep({
         <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-accent" aria-hidden="true" />
         <div className="space-y-2">
           <p className="text-body font-medium text-text">
-            {aiEnabled ? t('plan.aiTitle') : t('plan.aiOffTitle')}
+            {aiEnabled && aiConnected ? t('plan.aiTitle') : t('plan.aiOffTitle')}
           </p>
           <p className="text-body-sm text-text-muted">
-            {aiEnabled ? t('plan.aiBody') : t('plan.aiOffBody')}
+            {!aiEnabled
+              ? t('plan.aiOffBody')
+              : aiConnected
+                ? t('plan.aiConnectedBody')
+                : t('plan.aiBody')}
           </p>
           {aiEnabled && (
             <Button

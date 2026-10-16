@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { localRepository } from '@/data/localRepository';
+import { clearCoachData } from '@/ai/clearCoachData';
 import type { Measurement, Rpe, SetLog, WeightEntry } from '@/types';
 import { queryKeys } from './keys';
 
@@ -41,7 +42,12 @@ export function useImportBackupMutation() {
 export function useResetAppDataMutation() {
   const invalidate = useInvalidateAppData();
   return useMutation({
-    mutationFn: () => localRepository.reset(),
+    mutationFn: async () => {
+      const data = await localRepository.reset();
+      // The AI key and chat live outside AppData; "reset everything" clears them too.
+      clearCoachData();
+      return data;
+    },
     onSuccess: invalidate,
   });
 }

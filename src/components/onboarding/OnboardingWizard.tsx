@@ -36,6 +36,7 @@ export interface OnboardingWizardProps {
   onStepChange: (patch: OnboardingDraft, step: OnboardingStep) => void;
   onComplete: (answers: OnboardingAnswers, mode: CompletionMode) => void;
   aiEnabled: boolean;
+  aiConnected: boolean;
   saving: boolean;
   /** Leave without saving; offered only when the user already has a plan. */
   onCancel?: () => void;
@@ -60,6 +61,7 @@ function StepForm({
   onStepChange,
   onComplete,
   aiEnabled,
+  aiConnected,
   saving,
   onCancel,
   currentStartDate,
@@ -179,6 +181,7 @@ function StepForm({
                   recommended={recommended}
                   recommendReasons={recommendation?.reasons ?? []}
                   aiEnabled={aiEnabled}
+                  aiConnected={aiConnected}
                   onDesignWithAi={() => void submit('ai')()}
                   busy={saving}
                   currentStartDate={currentStartDate}

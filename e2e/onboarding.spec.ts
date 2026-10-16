@@ -152,6 +152,70 @@ test('the wizard is keyboard operable', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
 });
 
+test('with an AI key saved, "Design with AI instead" saves the plan and starts the coach interview', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'fitpower-ai-key',
+      JSON.stringify({
+        provider: 'anthropic',
+        apiKey: 'sk-ant-e2e-not-a-real-key',
+        model: 'claude-sonnet-5-5',
+        baseUrl: 'https://api.anthropic.com',
+        savedAt: '2026-10-16T09:00:00.000Z',
+      }),
+    );
+  });
+  const requests: unknown[] = [];
+  await page.route('https://api.anthropic.com/v1/messages', async (route) => {
+    requests.push(route.request().postDataJSON());
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      headers: { 'access-control-allow-origin': '*' },
+      body: JSON.stringify({
+        content: [{ type: 'text', text: 'Great, which days of the week suit you?' }],
+        stop_reason: 'end_turn',
+      }),
+    });
+  });
+
+  await page.goto('/onboarding');
+  await fillAboutAndBody(page);
+  await heading(page, 'Your goal');
+  await page.getByText('Build muscle', { exact: true }).click();
+  await next(page);
+  await heading(page, 'Training experience');
+  await page.getByText('Intermediate', { exact: true }).click();
+  await next(page);
+  await heading(page, 'Injuries and health');
+  await next(page);
+  await heading(page, 'Lifestyle');
+  for (const name of ['How would you rate your diet?', 'How would you rate your overall health?']) {
+    await page.getByRole('group', { name }).getByText('4', { exact: true }).click();
+  }
+  await page.getByText('3 days', { exact: true }).click();
+  await page.getByText('45 min', { exact: true }).click();
+  await next(page);
+
+  await heading(page, 'Choose your plan');
+  await expect(page.getByText('Design with AI', { exact: true })).toBeVisible();
+  await expect(page.getByText('AI coach not connected')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Design with AI instead' }).click();
+
+  await expect(page).toHaveURL(/\/coach$/);
+  await expect(page.getByText('Great, which days of the week suit you?')).toBeVisible();
+  expect(requests).toHaveLength(1);
+
+  const data = await page.evaluate(
+    (key) => JSON.parse(localStorage.getItem(key) ?? '{}').state,
+    STORE_KEY,
+  );
+  expect(data.profile.name).toBe('Alex');
+  expect(data.plan.source).toBe('builtin-intermediate');
+});
+
 const axeSource = createRequire(import.meta.url).resolve('axe-core/axe.min.js');
 
 /** Runs axe-core (WCAG 2.1 A/AA rules) in the page and returns a compact violation list. */

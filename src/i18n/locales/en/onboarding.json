@@ -190,7 +190,8 @@
       }
     },
     "aiTitle": "Design with AI",
-    "aiBody": "Connect your own AI key and a coach will interview you and design the plan.",
+    "aiBody": "The built-in plans work fully offline. Connect your own AI key and a coach will interview you and design the plan.",
+    "aiConnectedBody": "Your AI coach will ask a few questions and design the plan with you. We save the built-in plan first, so you can keep it if you prefer.",
     "aiCta": "Design with AI instead",
     "aiOffTitle": "AI coach not connected",
     "aiOffBody": "The built-in plans work fully offline. You can redesign your plan with an AI coach later.",
