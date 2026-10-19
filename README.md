@@ -16,6 +16,7 @@ Built for training at home with **a pair of dumbbells and a resistance band**, p
 
 - [What you get](#what-you-get)
 - [Run it on your computer](#run-it-on-your-computer)
+- [Use it on your phone](#use-it-on-your-phone)
 - [First run: tell it about yourself](#first-run-tell-it-about-yourself)
 - [Built-in plans (no AI needed)](#built-in-plans-no-ai-needed)
 - [Optional: the AI coach with your own key](#optional-the-ai-coach-with-your-own-key)
@@ -62,6 +63,25 @@ If port 5173 is busy, close whatever is using it rather than changing the port.
 
 **Install it as an app (optional).** In Chrome or Edge, use the install icon in the address bar.
 FitPower then opens in its own window like any other app.
+
+## Use it on your phone
+
+FitPower runs in the phone's browser; nothing to install. Two ways:
+
+**From your computer, on the same Wi-Fi.** Run `npm run start:phone` instead of `npm start`. The
+terminal prints a `Network:` address such as `http://192.168.1.20:5173`; open it on the phone.
+Windows may ask to allow Node.js through the firewall: allow it on private networks. The computer
+must stay on, and because this address is plain `http`, the phone can't install it as an app or use
+it offline.
+
+**From a free GitHub Pages link (works anywhere, offline, installable).** In your fork, turn on
+**Settings → Pages → Source: GitHub Actions**, then run **Actions → Deploy to GitHub Pages → Run
+workflow**. The app appears at `https://<your-user>.github.io/<repo>/`. Open it on the phone, then
+use **Add to Home screen**; after the first visit it works offline. Pages only hosts the app's
+files: your logs stay in the phone's browser and are never uploaded.
+
+The phone keeps its own data, separate from your computer. To move it, use **Settings → Backup →
+Export** on one device and **Import** on the other.
 
 ## First run: tell it about yourself
 

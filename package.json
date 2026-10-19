@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "vite build && vite preview",
+    "start:phone": "vite build && vite preview --host",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
