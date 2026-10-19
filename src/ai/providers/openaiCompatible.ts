@@ -26,6 +26,7 @@ type WireMessage =
         id: string;
         type: 'function';
         function: { name: string; arguments: string };
+        extra_content?: Record<string, unknown>;
       }[];
     }
   | { role: 'tool'; tool_call_id: string; content: string };
@@ -35,7 +36,12 @@ interface WireResponse {
     finish_reason?: string;
     message?: {
       content?: string | null;
-      tool_calls?: { id: string; function: { name: string; arguments: string } }[];
+      tool_calls?: {
+        id: string;
+        function: { name: string; arguments: string };
+        /** Gemini puts its thought signature here; it must be echoed back. */
+        extra_content?: Record<string, unknown>;
+      }[];
     };
   }[];
 }
@@ -56,6 +62,9 @@ export function toWireMessages(system: string, messages: ChatMessage[]): WireMes
                 id: b.id,
                 type: 'function' as const,
                 function: { name: b.name, arguments: JSON.stringify(b.input) },
+                ...(b.providerData?.extra_content
+                  ? { extra_content: b.providerData.extra_content as Record<string, unknown> }
+                  : {}),
               },
             ]
           : [],
@@ -94,7 +103,10 @@ function parseArgs(raw: string): Record<string, unknown> {
   }
 }
 
-/** OpenAI chat-completions, which also covers Ollama, LM Studio and similar local servers. */
+/**
+ * OpenAI chat-completions, which also covers Ollama, LM Studio, Groq, OpenRouter
+ * and Gemini's OpenAI-compatible endpoint.
+ */
 export function createOpenAiCompatibleProvider(options: OpenAiCompatibleOptions): AiProvider {
   const baseUrl = options.baseUrl.replace(/\/+$/, '');
   return {
@@ -134,6 +146,7 @@ export function createOpenAiCompatibleProvider(options: OpenAiCompatibleOptions)
           id: call.id,
           name: call.function.name,
           input: parseArgs(call.function.arguments),
+          ...(call.extra_content ? { providerData: { extra_content: call.extra_content } } : {}),
         });
       }
       const reason = stopReason(choice.finish_reason);
