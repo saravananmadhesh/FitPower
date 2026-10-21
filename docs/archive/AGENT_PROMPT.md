@@ -45,9 +45,9 @@ Hard requirements:
 - Design system per DESIGN.md: collapsible left sidebar + topbar, rounded cards, ONE lime accent,
   dark default + light theme, responsive 4→2→1, subtle motion, big stat numbers, clean charts.
 
-User context (hard-code as constants): Sarwan, 166 cm, start 80 kg, goal 70±2 kg, waist 90–95 cm,
-beginner, home equipment = dumbbells + resistance bands, mild left-knee pain → knee-friendly lower body
-(no jumping/deep lunges). 5 days/week, 30 min, 6 phases × 30 days.
+User context (hard-code as constants): the original single user's body stats, goal and injury notes
+(redacted for the public release; the app now reads these from the profile), beginner, home equipment =
+dumbbells + resistance bands, knee-friendly lower body (no jumping/deep lunges). 5 days/week, 30 min, 6 phases × 30 days.
 
 Pages (parity with v1 + dashboard polish): Dashboard, Workout (timer + per-set logging + swap + RPE),
 Schedule (180-day grid), Progress (weight trend: daily + 7-day avg + goal line, measurements),
