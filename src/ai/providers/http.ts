@@ -4,8 +4,12 @@ import { AiProviderError } from '../types';
 export async function errorForStatus(res: Response): Promise<AiProviderError> {
   let detail = '';
   try {
-    const body = (await res.json()) as { error?: { message?: string } | string };
-    detail = typeof body.error === 'string' ? body.error : (body.error?.message ?? '');
+    const raw: unknown = await res.json();
+    // Gemini's OpenAI-compatible endpoint wraps the error in an array.
+    const body = (Array.isArray(raw) ? raw[0] : raw) as
+      { error?: { message?: string } | string } | undefined;
+    const error = body?.error;
+    detail = typeof error === 'string' ? error : (error?.message ?? '');
   } catch {
     // Not JSON; the status code is enough.
   }

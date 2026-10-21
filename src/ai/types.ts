@@ -14,6 +14,12 @@ export interface ToolUseBlock {
   id: string;
   name: string;
   input: Record<string, unknown>;
+  /**
+   * Provider-specific data that must be sent back unchanged with this call,
+   * e.g. Gemini's `extra_content.google.thought_signature`. Without it Gemini 3
+   * rejects the next request with HTTP 400.
+   */
+  providerData?: Record<string, unknown>;
 }
 
 export interface ToolResultBlock {
